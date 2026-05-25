@@ -35,6 +35,15 @@ You edit `.ai/`. A single generator (`scripts/sync-ai-docs.ts`) materializes the
 configs for **Claude Code, Cursor, Codex, Gemini CLI, and opencode**. No more hand-maintaining
 `CLAUDE.md`, `.cursor/rules`, and a Gemini config separately and watching them drift.
 
+## 🎬 See it in action
+
+![cross-ai-template — one .ai/ edit fans out to every tool, with a drift gate](docs/imgs/demo.gif)
+
+One edit to `.ai/context.md` → `bun run sync:ai` → the same rule lands in every tool's config:
+inlined into `AGENTS.md`/`.cursor` (Codex, Cursor, GitHub web) and `@`-imported by the
+`CLAUDE.md`/`GEMINI.md` stubs. Then `bun run check:sync` (the pre-commit gate) **blocks** a
+contract edit that wasn't re-synced.
+
 ## 🧩 How it works
 
 ```

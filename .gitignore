@@ -15,3 +15,8 @@ node_modules/
 
 # OS / editor cruft
 .DS_Store
+
+# Demo recording tooling — kept local, not shipped. The rendered docs/imgs/demo.gif that the
+# README embeds IS committed; the script and the intermediate asciinema cast are not.
+scripts/record-demo.sh
+docs/imgs/demo.cast
