@@ -1,4 +1,32 @@
+<!-- logo: figlet "ANSI Shadow" — regenerate with:  bunx figlet -f "ANSI Shadow" "cross-ai" -->
+```
+ ██████╗██████╗  ██████╗ ███████╗███████╗       █████╗ ██╗
+██╔════╝██╔══██╗██╔═══██╗██╔════╝██╔════╝      ██╔══██╗██║
+██║     ██████╔╝██║   ██║███████╗███████╗█████╗███████║██║
+██║     ██╔══██╗██║   ██║╚════██║╚════██║╚════╝██╔══██║██║
+╚██████╗██║  ██║╚██████╔╝███████║███████║      ██║  ██║██║
+ ╚═════╝╚═╝  ╚═╝ ╚═════╝ ╚══════╝╚══════╝      ╚═╝  ╚═╝╚═╝
+```
+
+<div align="center">
+
 # cross-ai-template
+
+**One operating contract for every AI coding tool — from a single source of truth.**
+
+![Claude Code](https://img.shields.io/badge/Claude_Code-D97757?style=for-the-badge)
+![Cursor](https://img.shields.io/badge/Cursor-000000?style=for-the-badge)
+![Codex](https://img.shields.io/badge/Codex-412991?style=for-the-badge)
+![Gemini CLI](https://img.shields.io/badge/Gemini_CLI-4285F4?style=for-the-badge)
+![opencode](https://img.shields.io/badge/opencode-FF6B00?style=for-the-badge)
+
+![skills](https://img.shields.io/badge/skills-24-8b5cf6?style=flat-square)
+![commands](https://img.shields.io/badge/commands-11-06b6d4?style=flat-square)
+![personas](https://img.shields.io/badge/personas-4-ec4899?style=flat-square)
+![config drift](https://img.shields.io/badge/config_drift-zero-22c55e?style=flat-square)
+![sync](https://img.shields.io/badge/sync-Bun-000000?style=flat-square&logo=bun&logoColor=white)
+
+</div>
 
 A drop-in scaffold that gives **every** AI coding tool in your repo the same operating
 contract, lifecycle, skills, personas, and commands — from **one source of truth**.
@@ -7,7 +35,7 @@ You edit `.ai/`. A single generator (`scripts/sync-ai-docs.ts`) materializes the
 configs for **Claude Code, Cursor, Codex, Gemini CLI, and opencode**. No more hand-maintaining
 `CLAUDE.md`, `.cursor/rules`, and a Gemini config separately and watching them drift.
 
-## How it works
+## 🧩 How it works
 
 ```
 .ai/                      ← the ONLY files you hand-edit (source of truth)
@@ -38,7 +66,7 @@ AGENTS.md · CLAUDE.md · GEMINI.md · .ai/generated/rules.mdc      ← contract
 pre-commit hook blocks committing a stale one. Change a convention in `.ai/`, run
 `bun run sync:ai`, commit.
 
-## Quick start (adopt into your repo)
+## ⚡ Quick start (adopt into your repo)
 
 1. Copy `.ai/`, `scripts/`, `package.json`, `.gitignore`, `.githooks/`, and the per-tool dirs
    (`.claude/ .gemini/ .opencode/ .cursor/ .codex/ .mcp.json`) into your repo — or start your
@@ -49,15 +77,18 @@ pre-commit hook blocks committing a stale one. Change a convention in `.ai/`, ru
    ```
    (If your repo already has a `package.json`, just copy the `scripts` entries and run
    `git config core.hooksPath .githooks` once.)
-3. **Fill the contract** — edit `.ai/context.md`: your Project, locked Stack, Definition of
-   Done, and hard rules. Look for the `<!-- FILL: … -->` markers.
-4. Regenerate:
+3. **Fill the contract** — two ways:
+   - **Fastest:** open the repo in your AI tool and run **`/bootstrap`** — it interviews you,
+     fills `.ai/context.md` (and can seed the specs), and runs the sync for you.
+   - **By hand:** edit `.ai/context.md` (your Project, locked Stack, Definition of Done, hard
+     rules — look for the `<!-- FILL: … -->` markers).
+4. Regenerate (skip if you ran `/bootstrap` — it already synced):
    ```sh
    bun run sync:ai
    ```
 5. Open the repo in any supported tool — it now follows the same contract everywhere.
 
-## Filling the specs (two ways)
+## 📐 Filling the specs (two ways)
 
 `.ai/specs/` ships as **empty skeletons** — the section headings *are* the required format.
 Populate them either way:
@@ -75,34 +106,34 @@ Populate them either way:
 You don't need an external spec tool — `/spec` + the `spec-driven-development` skill *are* the
 "open-spec" workflow, built in.
 
-## The lifecycle
+## 🔁 The lifecycle
 
 Per vertical slice: `/spec → /plan → /build → /test → /review`.
 Once, at the end: `/consensus-review → /code-simplify → /ship → /acceptance → /goal`.
 Full definition: [`.ai/pipeline.md`](.ai/pipeline.md).
 
-## What's included
+## 📦 What's included
 
-- **Commands** (`.ai/commands/`): `spec`, `plan`, `build`, `test`, `review`,
-  `consensus-review`, `code-simplify`, `ship`, `acceptance`, `excalidraw-spec`.
+- **Commands** (`.ai/commands/`): `bootstrap` (one-time setup), `spec`, `plan`, `build`,
+  `test`, `review`, `consensus-review`, `code-simplify`, `ship`, `acceptance`, `excalidraw-spec`.
 - **Personas** (`.ai/agents/`): `code-reviewer`, `security-auditor`, `performance-reviewer`,
   `test-engineer`. See [`.ai/agents/README.md`](.ai/agents/README.md).
 - **Skills** (`.ai/skills/`): ~24 stack-agnostic workflows — TDD, code review, CI/CD,
   incremental implementation, security hardening, debugging, API design, and more.
 - **References** (`.ai/references/`): checklists the personas/skills cite.
 
-## Memory
+## 🧠 Memory
 
 `.ai/memory.md` is a **local, gitignored** per-developer working log, seeded from
 `.ai/memory.example.md` on first sync. Terse `symptom → root cause → fix` entries. Durable,
 team-facing decisions go in commit messages or `docs/adr/`, not here. Never write secrets.
 
-## MCP servers
+## 🔌 MCP servers
 
 `.mcp.json` ships one server: `excalidraw` (used by `/excalidraw-spec`). Add your own
 (database, search, etc.) there; `.codex/config.toml` mirrors MCP config for Codex.
 
-## Keeping it in sync
+## 🔄 Keeping it in sync
 
 - `bun run sync:ai` — regenerate everything from `.ai/`.
 - `bun run check:sync` — regenerate and fail if anything changed (use in CI).
