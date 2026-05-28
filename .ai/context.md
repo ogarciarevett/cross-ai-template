@@ -15,8 +15,17 @@
   - `.cursor/rules/00-context.mdc` is a symlink → `.ai/generated/rules.mdc`. Add another
     IDE by symlinking its rules path to that artifact — no script change needed.
   - opencode reads `.ai/context.md` + `.ai/pipeline.md` + `.ai/memory.md` directly.
+  - Commands (`.ai/commands/`), subagents (`.ai/agents/`), and skills (`.ai/skills/`) are
+    hand-edited sources too; `sync:ai` fans them into every tool's format. A skill may use a
+    Claude-Code-only accelerant internally (the dynamic `Workflow` tool, `/graphify`) as long
+    as it degrades gracefully for the other CLIs — see the `evolve` skill for the pattern.
+  - `.ai/workflows/*.workflow.js` are Claude-Code-only dynamic `Workflow` scripts. They are
+    the single source of truth, NOT generated into any tool tree — the `Workflow` tool reads
+    them by path. See `.ai/workflows/README.md`. Other CLIs achieve the same fan-out with
+    their native sub-agents.
 - All spec/planning/acceptance artifacts live under `.ai/specs/` (`00-requirements.md`,
-  `01-spec.md`, `02-plan.md`, `03-review.md`, `98-nice-to-haves.md`, `99-acceptance.md`).
+  `01-spec.md`, `02-plan.md`, `03-review.md`, `97-evolution.md` (from `/evolve`),
+  `98-nice-to-haves.md`, `99-acceptance.md`).
 - Memory (`.ai/memory.md`) is LOCAL and gitignored — see the Memory protocol below.
 - To change a convention: edit `.ai/context.md` / `.ai/pipeline.md`, run `bun run
   sync:ai`, and reflect it in `.ai/specs/01-spec.md`. At the end of every `/build` slice,

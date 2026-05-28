@@ -194,6 +194,15 @@ if (existsSync(SKILLS_SRC)) {
 	}
 }
 
+// Workflows → .ai/workflows/ is the single source of truth (committed, Claude-Code-only).
+// Dynamic Workflow scripts are passed to the Workflow tool by path, so they are NOT
+// transformed into any per-tool tree — they are referenced in place. Counted here only
+// so the sync summary reflects them and a missing dir is obvious.
+const WORKFLOWS_SRC = join(AI, "workflows");
+const workflows = existsSync(WORKFLOWS_SRC)
+	? readdirSync(WORKFLOWS_SRC).filter((f) => f.endsWith(".js")).length
+	: 0;
+
 // ---------------------------------------------------------------- summary
 console.log(
 	allInline
@@ -203,8 +212,9 @@ console.log(
 console.log(
 	`  docs    → AGENTS.md, CLAUDE.md, GEMINI.md, .ai/generated/rules.mdc (+ .cursor symlink)`,
 );
-console.log(
-	`  commands→ ${commands} × {.claude, .opencode (md), .gemini (toml)}`,
-);
+console.log(`  commands→ ${commands} × {.claude, .opencode (md), .gemini (toml)}`);
 console.log(`  agents  → ${agents} × {.claude, .opencode, .gemini}`);
 console.log(`  skills  → ${skills} × {.claude/skills, .gemini/skills}`);
+console.log(
+	`  workflows→ ${workflows} in .ai/workflows/ (Claude-Code-only, by path)`,
+);

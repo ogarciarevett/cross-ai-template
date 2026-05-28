@@ -20,8 +20,8 @@
 ![Gemini CLI](https://img.shields.io/badge/Gemini_CLI-4285F4?style=for-the-badge)
 ![opencode](https://img.shields.io/badge/opencode-FF6B00?style=for-the-badge)
 
-![skills](https://img.shields.io/badge/skills-24-8b5cf6?style=flat-square)
-![commands](https://img.shields.io/badge/commands-11-06b6d4?style=flat-square)
+![skills](https://img.shields.io/badge/skills-25-8b5cf6?style=flat-square)
+![commands](https://img.shields.io/badge/commands-12-06b6d4?style=flat-square)
 ![personas](https://img.shields.io/badge/personas-4-ec4899?style=flat-square)
 ![config drift](https://img.shields.io/badge/config_drift-zero-22c55e?style=flat-square)
 ![sync](https://img.shields.io/badge/sync-Bun-000000?style=flat-square&logo=bun&logoColor=white)
@@ -53,6 +53,7 @@ contract edit that wasn't re-synced.
  ├─ commands/*.md         slash-command definitions
  ├─ agents/*.md           reviewer personas (code / security / performance / test)
  ├─ skills/*/SKILL.md     reusable workflow skills (TDD, code review, CI/CD, …)
+ ├─ workflows/*.js        Claude-Code-only dynamic Workflow scripts (fan-out panels)
  ├─ references/*.md       checklists the skills/personas cite
  ├─ specs/*.md            your project's requirements / spec / plan / review / acceptance
  └─ memory.example.md     seed for the local, gitignored working log
@@ -119,16 +120,24 @@ You don't need an external spec tool — `/spec` + the `spec-driven-development`
 
 Per vertical slice: `/spec → /plan → /build → /test → /review`.
 Once, at the end: `/consensus-review → /code-simplify → /ship → /acceptance → /goal`.
+Optional, on a cadence: `/evolve` — re-sync the `.ai/` contract to the code (all CLIs;
+graphify + dynamic Workflow accelerate it on Claude Code).
 Full definition: [`.ai/pipeline.md`](.ai/pipeline.md).
 
 ## 📦 What's included
 
 - **Commands** (`.ai/commands/`): `bootstrap` (one-time setup), `spec`, `plan`, `build`,
-  `test`, `review`, `consensus-review`, `code-simplify`, `ship`, `acceptance`, `excalidraw-spec`.
+  `test`, `review`, `consensus-review`, `code-simplify`, `ship`, `acceptance`, `excalidraw-spec`,
+  and `evolve` (contract drift detection).
 - **Personas** (`.ai/agents/`): `code-reviewer`, `security-auditor`, `performance-reviewer`,
   `test-engineer`. See [`.ai/agents/README.md`](.ai/agents/README.md).
-- **Skills** (`.ai/skills/`): ~24 stack-agnostic workflows — TDD, code review, CI/CD,
-  incremental implementation, security hardening, debugging, API design, and more.
+- **Skills** (`.ai/skills/`): ~25 stack-agnostic workflows — TDD, code review, CI/CD,
+  incremental implementation, security hardening, debugging, API design, plus `evolve`
+  (graphify-backed contract-vs-code drift) and more.
+- **Workflows** (`.ai/workflows/`): **Claude-Code-only** dynamic `Workflow` scripts that fan
+  out subagents deterministically — the 2-of-3 `consensus-review` panel, `parallel-slices`,
+  and the `evolve-scan` engine. Other CLIs use their native sub-agents for the same stages.
+  See [`.ai/workflows/README.md`](.ai/workflows/README.md).
 - **References** (`.ai/references/`): checklists the personas/skills cite.
 
 ## 🧠 Memory
