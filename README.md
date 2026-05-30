@@ -1,4 +1,4 @@
-<!-- logo: figlet "ANSI Shadow" — regenerate with:  bunx figlet -f "ANSI Shadow" "cross-ai" -->
+<!-- logo: figlet "ANSI Shadow" — regenerate with:  figlet -f "ANSI Shadow" "cross-ai" -->
 ```
  ██████╗██████╗  ██████╗ ███████╗███████╗       █████╗ ██╗
 ██╔════╝██╔══██╗██╔═══██╗██╔════╝██╔════╝      ██╔══██╗██║
@@ -24,24 +24,27 @@
 ![commands](https://img.shields.io/badge/commands-12-06b6d4?style=flat-square)
 ![personas](https://img.shields.io/badge/personas-4-ec4899?style=flat-square)
 ![config drift](https://img.shields.io/badge/config_drift-zero-22c55e?style=flat-square)
-![sync](https://img.shields.io/badge/sync-Bun-000000?style=flat-square&logo=bun&logoColor=white)
+![sync](https://img.shields.io/badge/sync-POSIX_shell-4EAA25?style=flat-square&logo=gnubash&logoColor=white)
+![runtime deps](https://img.shields.io/badge/runtime_deps-none-22c55e?style=flat-square)
 
 </div>
 
 A drop-in scaffold that gives **every** AI coding tool in your repo the same operating
 contract, lifecycle, skills, personas, and commands — from **one source of truth**.
 
-You edit `.ai/`. A single generator (`scripts/sync-ai-docs.ts`) materializes the tool-specific
-configs for **Claude Code, Cursor, Codex, Gemini CLI, and opencode**. No more hand-maintaining
-`CLAUDE.md`, `.cursor/rules`, and a Gemini config separately and watching them drift.
+You edit `.ai/`. A single generator (`scripts/sync-ai-docs.sh` — **dependency-free POSIX shell**,
+no node/bun/python) materializes the tool-specific configs for **Claude Code, Cursor, Codex,
+Gemini CLI, and opencode**. No more hand-maintaining `CLAUDE.md`, `.cursor/rules`, and a Gemini
+config separately and watching them drift. Drop it into a project in **any language** — the
+machinery needs nothing but a shell.
 
 ## 🎬 See it in action
 
 ![cross-ai-template — one .ai/ edit fans out to every tool, with a drift gate](docs/imgs/demo.gif)
 
-One edit to `.ai/context.md` → `bun run sync:ai` → the same rule lands in every tool's config:
-inlined into `AGENTS.md`/`.cursor` (Codex, Cursor, GitHub web) and `@`-imported by the
-`CLAUDE.md`/`GEMINI.md` stubs. Then `bun run check:sync` (the pre-commit gate) **blocks** a
+One edit to `.ai/context.md` → `sh scripts/sync-ai-docs.sh` → the same rule lands in every
+tool's config: inlined into `AGENTS.md`/`.cursor` (Codex, Cursor, GitHub web) and `@`-imported
+by the `CLAUDE.md`/`GEMINI.md` stubs. Then the pre-commit hook re-runs the sync and **blocks** a
 contract edit that wasn't re-synced.
 
 ## 🧩 How it works
@@ -58,7 +61,7 @@ contract edit that wasn't re-synced.
  ├─ specs/*.md            your project's requirements / spec / plan / review / acceptance
  └─ memory.example.md     seed for the local, gitignored working log
 
-      │   bun run sync:ai      (scripts/sync-ai-docs.ts — deterministic)
+      │   sh scripts/sync-ai-docs.sh   (POSIX shell, no runtime deps — deterministic)
       ▼
 AGENTS.md · CLAUDE.md · GEMINI.md · .ai/generated/rules.mdc      ← contract entry files
 .claude/ · .gemini/ (TOML) · .opencode/ · .cursor/ (symlink)     ← per-tool mirrors
@@ -74,27 +77,27 @@ AGENTS.md · CLAUDE.md · GEMINI.md · .ai/generated/rules.mdc      ← contract
 
 **Never edit a generated file** — your edit is overwritten on the next sync, and the
 pre-commit hook blocks committing a stale one. Change a convention in `.ai/`, run
-`bun run sync:ai`, commit.
+`sh scripts/sync-ai-docs.sh`, commit.
 
 ## ⚡ Quick start (adopt into your repo)
 
-1. Copy `.ai/`, `scripts/`, `package.json`, `.gitignore`, `.githooks/`, and the per-tool dirs
+1. Copy `.ai/`, `scripts/`, `.gitignore`, `.githooks/`, and the per-tool dirs
    (`.claude/ .gemini/ .opencode/ .cursor/ .codex/ .mcp.json`) into your repo — or start your
-   repo from this template.
-2. Install the sync tooling and wire the hook:
+   repo from this template. **No `package.json` needed** — the machinery is pure shell.
+2. Install the hooks and run the first sync (one command, no runtime to install):
    ```sh
-   bun install        # runs the `prepare` script → git config core.hooksPath .githooks
+   sh scripts/install.sh   # git config core.hooksPath .githooks + chmod + first sync
    ```
-   (If your repo already has a `package.json`, just copy the `scripts` entries and run
-   `git config core.hooksPath .githooks` once.)
 3. **Fill the contract** — two ways:
    - **Fastest:** open the repo in your AI tool and run **`/bootstrap`** — it interviews you,
-     fills `.ai/context.md` (and can seed the specs), and runs the sync for you.
+     fills `.ai/context.md` (and can seed the specs), **wires your language's pre-commit /
+     post-commit hooks**, and runs the sync for you.
    - **By hand:** edit `.ai/context.md` (your Project, locked Stack, Definition of Done, hard
-     rules — look for the `<!-- FILL: … -->` markers).
-4. Regenerate (skip if you ran `/bootstrap` — it already synced):
+     rules — look for the `<!-- FILL: … -->` markers), and drop your language's checks into
+     `.githooks/pre-commit.d/` and `.githooks/post-commit.d/` (see those dirs' READMEs).
+4. Regenerate (skip if you ran `/bootstrap` or `install.sh` — they already synced):
    ```sh
-   bun run sync:ai
+   sh scripts/sync-ai-docs.sh
    ```
 5. Open the repo in any supported tool — it now follows the same contract everywhere.
 
@@ -153,7 +156,19 @@ team-facing decisions go in commit messages or `docs/adr/`, not here. Never writ
 
 ## 🔄 Keeping it in sync
 
-- `bun run sync:ai` — regenerate everything from `.ai/`.
-- `bun run check:sync` — regenerate and fail if anything changed (use in CI).
-- `.githooks/pre-commit` runs the check automatically once
-  `git config core.hooksPath .githooks` is set (done by `bun install`).
+- `sh scripts/sync-ai-docs.sh` — regenerate everything from `.ai/` (no runtime deps).
+- `sh scripts/sync-ai-docs.sh && git diff --exit-code` — regenerate and fail if anything
+  changed (use in CI).
+- `.githooks/pre-commit` runs the sync gate automatically once
+  `git config core.hooksPath .githooks` is set (done by `sh scripts/install.sh`), then runs
+  any language checks you (or `/bootstrap`) put in `.githooks/pre-commit.d/`.
+
+## 🪝 Commit hooks (language-specific)
+
+The template's hooks are **agnostic dispatchers**: `pre-commit` runs the sync drift gate then
+every executable in `.githooks/pre-commit.d/`; `post-commit` runs every executable in
+`.githooks/post-commit.d/`. The template ships those `.d/` dirs **empty**. Run **`/bootstrap`**
+and it writes your language's checks into them — `gofmt`/`go vet`/`go test`, `prettier`/`eslint`/
+`tsc`/`npm test`, `ruff`/`black`/`mypy`/`pytest`, `cargo fmt`/`clippy`/`test`, etc. — using the
+exact Definition-of-Done commands from your contract. Nothing language-specific ever touches the
+dispatcher hooks or the sync script, so the core stays drop-in for any stack.

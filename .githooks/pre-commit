@@ -1,21 +1,40 @@
 #!/usr/bin/env sh
-# Regenerate the per-tool agent docs from .ai/ and block the commit if the committed mirrors
-# are stale. The generator is deterministic (no timestamps), so this only fires on real drift.
-# Enabled per clone by `bun install` (the `prepare` script), or manually:
-#   git config core.hooksPath .githooks
-set -e
+# pre-commit — two layers, both language-agnostic by themselves:
+#
+#   1. SYNC DRIFT GATE (always, template infrastructure): regenerate the per-tool agent docs
+#      from .ai/ with the dependency-free shell generator and block the commit if the committed
+#      mirrors are stale. The generator is deterministic (no timestamps), so this only fires on
+#      real drift. Needs nothing but a POSIX shell + awk/sed — no node/bun/python.
+#
+#   2. PROJECT QUALITY GATES (optional, language-specific): run every executable hook dropped
+#      into `.githooks/pre-commit.d/` by `/bootstrap`. That is where the chosen language's
+#      lint / format / typecheck commands live — the template ships this layer empty.
+#
+# Enable per clone with `sh scripts/install.sh` (or `git config core.hooksPath .githooks`).
+set -eu
 
-if ! command -v bun >/dev/null 2>&1; then
-  echo "pre-commit: bun not found — skipping agent-doc sync check." >&2
-  exit 0
-fi
+HOOK_DIR=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
+REPO_ROOT=$(CDPATH='' cd -- "$HOOK_DIR/.." && pwd)
+cd "$REPO_ROOT"
 
-bun scripts/sync-ai-docs.ts >/dev/null
+# --- 1. sync drift gate -------------------------------------------------------
+sh scripts/sync-ai-docs.sh >/dev/null
 
 PATHS="AGENTS.md CLAUDE.md GEMINI.md .ai/generated .cursor .claude .gemini .opencode"
+# shellcheck disable=SC2086  # $PATHS is a deliberate space-separated list — must word-split into args.
 if ! git diff --quiet -- $PATHS; then
-  echo "✗ Generated agent docs are out of sync with .ai/." >&2
-  echo "  Run 'bun run sync:ai', then stage the regenerated files:" >&2
-  git --no-pager diff --name-only -- $PATHS >&2
-  exit 1
+	echo "✗ Generated agent docs are out of sync with .ai/." >&2
+	echo "  Run 'sh scripts/sync-ai-docs.sh', then stage the regenerated files:" >&2
+	# shellcheck disable=SC2086
+	git --no-pager diff --name-only -- $PATHS >&2
+	exit 1
+fi
+
+# --- 2. project quality gates (added by /bootstrap, per language) -------------
+if [ -d "$HOOK_DIR/pre-commit.d" ]; then
+	for hook in "$HOOK_DIR"/pre-commit.d/*; do
+		[ -f "$hook" ] || continue   # nothing dropped in yet
+		[ -x "$hook" ] || continue   # skip non-executable files (e.g. README, .gitkeep)
+		"$hook" || exit 1
+	done
 fi

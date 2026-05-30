@@ -71,17 +71,17 @@ Materialize the drift list into the report below. One row per drift item.
 # Evolution proposals — <YYYY-MM-DD>
 
 Source: `/evolve`. Reality map: <graphify-out/graph.json | direct scan>.
-These are PROPOSALS. A human reviews and applies; then run `bun run sync:ai`.
+These are PROPOSALS. A human reviews and applies; then run `sh scripts/sync-ai-docs.sh`.
 
 ## Drift table
-| # | Dimension | Where (ground truth) | Observed (code) | Documented (.ai/) | Target | Confidence |
-|---|-----------|----------------------|-----------------|-------------------|--------|------------|
-| 1 | stack     | package.json:12      | bun test runner | says "vitest"     | .ai/context.md | high |
+| # | Dimension | Where (ground truth)   | Observed (code)        | Documented (.ai/)   | Target | Confidence |
+|---|-----------|------------------------|------------------------|---------------------|--------|------------|
+| 1 | stack     | <manifest/lockfile>:12 | actual test runner cmd | names a different one | .ai/context.md | high |
 
 ## Proposed patches
 ### 1 — .ai/context.md · Stack (high)
-- **Drift:** Definition of Done names `vitest`; the repo runs `bun test`.
-- **Patch:** Replace the test-command line under "Definition of Done" with `bun test`.
+- **Drift:** Definition of Done names one test runner; the repo's manifest/CI runs another.
+- **Patch:** Replace the test-command line under "Definition of Done" with the real command.
 
 ## Out of scope / low confidence
 - <items dropped or deferred, with one-line rationale>
@@ -93,7 +93,7 @@ These are PROPOSALS. A human reviews and applies; then run `bun run sync:ai`.
 ### 4. Hand off
 
 Stop after writing the report. Tell the human what's there and that applying any patch
-means editing the `.ai/` source then running `bun run sync:ai` (the pre-commit drift gate
+means editing the `.ai/` source then running `sh scripts/sync-ai-docs.sh` (the pre-commit drift gate
 will confirm the generated docs regenerated cleanly). Record any environment quirk you hit
 in `.ai/memory.md`.
 
