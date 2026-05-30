@@ -25,8 +25,9 @@ Repeat per slice until the feature is complete.
 ## Project-level finish (run ONCE, after all slices)
 6. `/consensus-review` — parallel fan-out: code-reviewer + security-auditor +
    performance-reviewer; require 2-of-3 APPROVE; write `.ai/specs/03-review.md`.
-   (This is the "parallel fan-out" stage — it lives here, not in `/ship`.) In Claude Code,
-   run it as a dynamic Workflow: `.ai/workflows/consensus-review.workflow.js`.
+   (This is the "parallel fan-out" stage — it lives here, not in `/ship`.) Run the three
+   reviewers as parallel sub-agents — an Agent Team in Claude Code, the tool's native
+   sub-agents elsewhere (see "Parallel work" below).
 7. `/code-simplify` — apply reviewer findings (Chesterton's Fence).
 8. `/ship` — Conventional, atomic commits ONLY. NEVER push, NEVER open a PR,
    NEVER touch a remote. Print `git log`, clean tree, and a ready-to-paste PR body.
@@ -43,22 +44,14 @@ Repeat per slice until the feature is complete.
     `.ai/specs/`** across five dimensions and writes proposed patches to
     `.ai/specs/97-evolution.md`. It PROPOSES, never applies — a human reviews and applies,
     then re-runs `sh scripts/sync-ai-docs.sh`. On **Claude Code** it accelerates with a `/graphify`
-    knowledge graph + the `evolve-scan` dynamic Workflow; **other CLIs** (and Claude Code
-    without graphify) fall back to a direct scan + native sub-agents. Same report either way.
+    knowledge graph; **other CLIs** (and Claude Code without graphify) fall back to a direct scan.
+    Either way the per-dimension drift checks fan out across native sub-agents. Same report.
 
-## Parallel work — Agent Teams / dynamic Workflows (Claude Code) / sub-agents (generic tools)
-Same idea, named per tool. In **Claude Code** you have two mechanisms:
-- an **Agent Team** — parallel teammates coordinating via the shared task list / SendMessage
-  (best when teammates need to talk mid-flight);
-- a **dynamic `Workflow`** — a deterministic script that fans out subagents with a gate /
-  pipeline (best for scripted, repeatable fan-out). Ready-made scripts live in
-  `.ai/workflows/` (Claude-Code-only; see its README): `consensus-review.workflow.js`
-  (the 2-of-3 panel), `parallel-slices.workflow.js` (file-disjoint slices),
-  `evolve-scan.workflow.js` (the `/evolve` engine). Run e.g.
-  `Workflow({ scriptPath: ".ai/workflows/consensus-review.workflow.js", args: { base: "main" } })`.
-
-In **generic agents** (Codex, Gemini, opencode) launch **sub-agents** — same intent, no
-`Workflow` tool. USE any of these for:
+## Parallel work — Agent Teams (Claude Code) / sub-agents (generic tools)
+Same idea, named per tool, and **language-agnostic** — no committed scripts, just each tool's
+native parallelism. In **Claude Code**, launch an **Agent Team** — parallel teammates
+coordinating via the shared task list / SendMessage. In **generic agents** (Codex, Gemini,
+opencode) launch the tool's **sub-agents** — same intent. USE any of these for:
 - a concurrency-sensitive module (one teammate proves ordering/correctness, one hunts races);
 - the `/consensus-review` 2-of-3 panel (code-reviewer + security-auditor + performance-reviewer);
 - independent, file-disjoint slices built in parallel (e.g. app/routes vs core vs workers vs db).

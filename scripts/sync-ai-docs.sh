@@ -153,16 +153,6 @@ if [ -d "$AI/skills" ]; then
 	done
 fi
 
-# Workflows → .ai/workflows/ is the single source of truth (committed, Claude-Code-only).
-# Referenced by path by the Workflow tool, NOT copied into any tool tree. Counted only so the
-# summary reflects them and a missing dir is obvious.
-workflows=0
-if [ -d "$AI/workflows" ]; then
-	for w in "$AI"/workflows/*.js; do
-		[ -e "$w" ] && workflows=$((workflows + 1))
-	done
-fi
-
 # ---------------------------------------------------------------- summary
 if [ "$ALL_INLINE" = "1" ]; then
 	echo "sync-ai-docs: regenerated (contract forced --all-inline)"
@@ -173,4 +163,3 @@ echo "  docs    → AGENTS.md, CLAUDE.md, GEMINI.md, .ai/generated/rules.mdc (+ 
 echo "  commands→ $commands × {.claude, .opencode (md), .gemini (toml)}"
 echo "  agents  → $agents × {.claude, .opencode, .gemini}"
 echo "  skills  → $skills × {.claude/skills, .gemini/skills}"
-echo "  workflows→ $workflows in .ai/workflows/ (Claude-Code-only, by path)"

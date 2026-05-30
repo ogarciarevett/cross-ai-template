@@ -17,12 +17,10 @@
   - opencode reads `.ai/context.md` + `.ai/pipeline.md` + `.ai/memory.md` directly.
   - Commands (`.ai/commands/`), subagents (`.ai/agents/`), and skills (`.ai/skills/`) are
     hand-edited sources too; the sync script fans them into every tool's format. A skill may use a
-    Claude-Code-only accelerant internally (the dynamic `Workflow` tool, `/graphify`) as long
-    as it degrades gracefully for the other CLIs — see the `evolve` skill for the pattern.
-  - `.ai/workflows/*.workflow.js` are Claude-Code-only dynamic `Workflow` scripts. They are
-    the single source of truth, NOT generated into any tool tree — the `Workflow` tool reads
-    them by path. See `.ai/workflows/README.md`. Other CLIs achieve the same fan-out with
-    their native sub-agents.
+    Claude-Code-only accelerant internally (e.g. `/graphify`) as long as it degrades gracefully
+    for the other CLIs — see the `evolve` skill for the pattern. Keep `.ai/` language-agnostic:
+    no per-tool runtime artifacts live here — parallel fan-out uses each tool's native
+    sub-agents / Agent Teams (see `.ai/pipeline.md`), not committed scripts.
 - All spec/planning/acceptance artifacts live under `.ai/specs/` (`00-requirements.md`,
   `01-spec.md`, `02-plan.md`, `03-review.md`, `97-evolution.md` (from `/evolve`),
   `98-nice-to-haves.md`, `99-acceptance.md`).

@@ -12,11 +12,10 @@ and it **proposes, never applies** — a human reviews the output and applies wh
    - *Any CLI (fallback):* read the repo directly with grep/glob — and if graphify isn't
      installed, this is the path on Claude Code too.
 2. **Scan for drift** across five dimensions — contract, stack, specs, pipeline, surface —
-   comparing ground truth to the matching `.ai/` source.
-   - *Claude Code:* fan out with the dynamic Workflow
-     `Workflow({ scriptPath: ".ai/workflows/evolve-scan.workflow.js", args: { hasGraph: <bool> } })`.
-   - *Codex / Gemini / opencode:* run the same five checks with the tool's native sub-agents
-     (or sequentially), per the "Parallel work" section of `.ai/pipeline.md`.
+   comparing ground truth to the matching `.ai/` source. Fan the five checks across the tool's
+   native parallelism — an Agent Team in Claude Code, the tool's sub-agents in Codex / Gemini /
+   opencode (or run them sequentially if the run is small), per the "Parallel work" section of
+   `.ai/pipeline.md`. Brief each with the dimension's `.ai/` source + the actual files.
 3. **Report:** write `.ai/specs/97-evolution.md` (drift table + concrete proposed patches to
    `.ai/` sources only, never generated files) with a one-line verdict.
 4. **Hand off:** stop there. Applying a patch = edit the `.ai/` source, then `sh scripts/sync-ai-docs.sh`.

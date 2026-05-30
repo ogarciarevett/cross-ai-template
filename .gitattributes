@@ -12,9 +12,3 @@ GEMINI.md            linguist-generated=true
 .gemini/**           linguist-generated=true
 .opencode/**         linguist-generated=true
 .cursor/**           linguist-generated=true
-
-# The dynamic Workflow scripts are a Claude-Code-only accelerant (the `Workflow` tool only
-# accepts JavaScript), NOT part of the language-agnostic core. They stay in the repo as real,
-# hand-edited source, but `linguist-vendored` keeps them out of the language bar so the repo's
-# language profile reflects the portable machinery (Shell + Awk), not one tool's glue.
-.ai/workflows/*.js   linguist-vendored=true
