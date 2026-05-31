@@ -1,6 +1,6 @@
 ---
 name: evolve
-description: "Scan the repo and evolve the .ai/ source-of-truth. Diffs code-reality against .ai/context.md + .ai/specs/ and writes proposed evolution patches to .ai/specs/97-evolution.md for a human to apply. Works in every CLI; uses a /graphify knowledge graph and a dynamic Workflow fan-out as a Claude-Code-only accelerant, with a direct-scan fallback everywhere else. Use when the docs may have drifted from the code, after a big feature lands, or on a cadence."
+description: "Scan the repo and evolve the .ai/ source-of-truth. Diffs code-reality against .ai/context.md + .ai/specs/ and writes proposed evolution patches to .ai/specs/97-evolution.md for a human to apply. Works in every CLI; uses a /graphify knowledge graph as a Claude-Code-only accelerant with a direct-scan fallback everywhere else, and fans the per-dimension checks across the tool's native sub-agents. Use when the docs may have drifted from the code, after a big feature lands, or on a cadence."
 ---
 
 # /evolve — keep the contract in sync with the code
@@ -12,10 +12,10 @@ drift: a dependency changes, a command stops being used, a behavior ships unspec
 or commits** — a human reviews `.ai/specs/97-evolution.md` and applies what's right
 (hard rule: durable contract changes are human-reviewed; the human pushes).
 
-> **Runs in every CLI.** Two parts are Claude-Code-only *accelerants*, not requirements:
-> the `/graphify` knowledge graph (step 1) and the dynamic `Workflow` fan-out (step 2).
-> When they're unavailable — other CLIs, or Claude Code without graphify installed — the
-> skill falls back to a direct repo scan and the tool's native sub-agents. Same output,
+> **Runs in every CLI.** One part is a Claude-Code-only *accelerant*, not a requirement:
+> the `/graphify` knowledge graph (step 1). When it's unavailable — other CLIs, or Claude
+> Code without graphify installed — the skill falls back to a direct repo scan. The
+> per-dimension fan-out (step 2) always uses the tool's native sub-agents. Same output,
 > shallower-but-honest coverage.
 
 ## When to use it
@@ -49,17 +49,11 @@ Compare ground truth to the matching `.ai/` source on each of: **contract** (con
 **pipeline** (commands / skills / pipeline.md), **surface** (new interfaces, env vars,
 security-relevant inputs/secret handling).
 
-- **Claude Code** — fan out with the dynamic Workflow (one analyst per dimension, ranked):
-
-  ```
-  Workflow({ scriptPath: ".ai/workflows/evolve-scan.workflow.js", args: { hasGraph: <true|false> } })
-  ```
-
-  It returns a ranked `drift` list and touches no file.
-
-- **Codex / Gemini / opencode** — run the same five checks with the tool's native
-  sub-agents (or sequentially if the run is small), per the "Parallel work" section of
-  `.ai/pipeline.md`. Brief each with the dimension's `.ai/` source + the actual files.
+Fan out one analyst per dimension across the tool's native parallelism — an **Agent Team** in
+**Claude Code**, the tool's **sub-agents** in **Codex / Gemini / opencode** (or run them
+sequentially if the run is small), per the "Parallel work" section of `.ai/pipeline.md`. Brief
+each with the dimension's `.ai/` source + the actual files; collect a ranked `drift` list and
+touch no file during the scan.
 
 Either way, propose patches **only to `.ai/` sources** — never to generated files.
 
@@ -104,6 +98,6 @@ in `.ai/memory.md`.
   violates, in which case flag it as a *code* bug instead, not a doc patch.
 - **Idempotent.** Re-running with no real drift yields an empty drift list and a "no
   drift" verdict — safe to schedule.
-- The Workflow path is documented in `.ai/workflows/README.md`; the generic sub-agent path
-  is in `.ai/pipeline.md`. For how spec edits feed back into the lifecycle, see
+- The sub-agent fan-out path is documented in the "Parallel work" section of
+  `.ai/pipeline.md`. For how spec edits feed back into the lifecycle, see
   `agent-skills:spec-driven-development`.

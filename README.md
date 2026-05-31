@@ -56,7 +56,6 @@ contract edit that wasn't re-synced.
  ├─ commands/*.md         slash-command definitions
  ├─ agents/*.md           reviewer personas (code / security / performance / test)
  ├─ skills/*/SKILL.md     reusable workflow skills (TDD, code review, CI/CD, …)
- ├─ workflows/*.js        Claude-Code-only dynamic Workflow scripts (fan-out panels)
  ├─ references/*.md       checklists the skills/personas cite
  ├─ specs/*.md            your project's requirements / spec / plan / review / acceptance
  └─ memory.example.md     seed for the local, gitignored working log
@@ -124,7 +123,7 @@ You don't need an external spec tool — `/spec` + the `spec-driven-development`
 Per vertical slice: `/spec → /plan → /build → /test → /review`.
 Once, at the end: `/consensus-review → /code-simplify → /ship → /acceptance → /goal`.
 Optional, on a cadence: `/evolve` — re-sync the `.ai/` contract to the code (all CLIs;
-graphify + dynamic Workflow accelerate it on Claude Code).
+`/graphify` accelerates it on Claude Code).
 Full definition: [`.ai/pipeline.md`](.ai/pipeline.md).
 
 ## 📦 What's included
@@ -137,10 +136,11 @@ Full definition: [`.ai/pipeline.md`](.ai/pipeline.md).
 - **Skills** (`.ai/skills/`): ~25 stack-agnostic workflows — TDD, code review, CI/CD,
   incremental implementation, security hardening, debugging, API design, plus `evolve`
   (graphify-backed contract-vs-code drift) and more.
-- **Workflows** (`.ai/workflows/`): **Claude-Code-only** dynamic `Workflow` scripts that fan
-  out subagents deterministically — the 2-of-3 `consensus-review` panel, `parallel-slices`,
-  and the `evolve-scan` engine. Other CLIs use their native sub-agents for the same stages.
-  See [`.ai/workflows/README.md`](.ai/workflows/README.md).
+- **Parallel fan-out** (no committed scripts): the `/consensus-review` 2-of-3 panel,
+  file-disjoint parallel slices, and `/evolve`'s per-dimension scan all run on each tool's
+  **native** parallelism — an Agent Team in Claude Code, sub-agents in Codex / Gemini /
+  opencode. See the "Parallel work" section of [`.ai/pipeline.md`](.ai/pipeline.md). Keeping
+  this language-/tool-agnostic (rather than shipping tool-specific scripts) is deliberate.
 - **References** (`.ai/references/`): checklists the personas/skills cite.
 
 ## 🧠 Memory
