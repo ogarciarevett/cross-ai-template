@@ -1,4 +1,5 @@
 ---
+model: openrouter/openai/gpt-5.5
 description: "Parallel 2-of-3 reviewer fan-out (code-reviewer + security-auditor + performance-reviewer); writes .ai/specs/03-review.md"
 ---
 

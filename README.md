@@ -167,6 +167,17 @@ newly released model is a one-line change, not a new subscription. In `opencode.
 }
 ```
 
+**This repo automates that routing.** Per-stage picks live in
+[`scripts/opencode-model-routing.sh`](scripts/opencode-model-routing.sh) — a single
+DeepSWE-grounded map (stage → OpenRouter model id). `sh scripts/sync-ai-docs.sh` stamps the
+`model:` key into the `.opencode/` copies **only**; the `.claude/` (Anthropic), `.codex/`
+(OpenAI), and `.gemini/` (Google) mirrors never receive a foreign id, and Gemini's transform
+drops the key anyway. The map is the only file you edit to re-route; if it's absent, sync falls
+back to a plain copy and the template stays vendor-neutral. Current spread:
+`spec` / `review` / `consensus-review` + `security-auditor` → `gpt-5.5` (frontier);
+`build` / `acceptance` / `evolve` / `bootstrap` + the other reviewers → `gpt-5.4` (value);
+`plan` / `test` / `code-simplify` / `ship` / `excalidraw-spec` → `gpt-5.4-mini` (cheap).
+
 **Keep `.ai/` vendor-neutral.** Don't hardcode a provider's model id into a *committed* template
 command — that would betray the agnostic point. Per-stage routing is something a downstream
 project opts into for its own opencode runtime; the template just documents the convention.

@@ -1,4 +1,5 @@
 ---
+model: openrouter/openai/gpt-5.4
 description: "Write .ai/specs/99-acceptance.md — per-requirement traceability matrix (requirement → file:line → test → ✅/⚠️/❌)"
 ---
 

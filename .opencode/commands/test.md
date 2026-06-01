@@ -1,4 +1,5 @@
 ---
+model: openrouter/openai/gpt-5.4-mini
 description: Run TDD workflow — write failing tests, implement, verify. For bugs, use the Prove-It pattern.
 ---
 

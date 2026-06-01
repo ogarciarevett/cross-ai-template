@@ -1,4 +1,5 @@
 ---
+model: openrouter/openai/gpt-5.4-mini
 description: Run the pre-launch checklist via parallel fan-out to specialist personas, then synthesize a go/no-go decision
 ---
 

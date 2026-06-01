@@ -1,4 +1,5 @@
 ---
+model: openrouter/openai/gpt-5.4
 description: Implement the next task incrementally — build, test, verify, commit
 ---
 

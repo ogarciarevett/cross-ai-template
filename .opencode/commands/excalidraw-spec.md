@@ -1,4 +1,5 @@
 ---
+model: openrouter/openai/gpt-5.4-mini
 description: "Generate an architecture diagram for the spec via the Excalidraw MCP server"
 ---
 

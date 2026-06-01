@@ -1,4 +1,5 @@
 ---
+model: openrouter/openai/gpt-5.4
 description: "One-time project setup — interview for stack/requirements, fill .ai/context.md, and regenerate every tool's config"
 ---
 

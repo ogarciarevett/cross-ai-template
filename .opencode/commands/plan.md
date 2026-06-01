@@ -1,4 +1,5 @@
 ---
+model: openrouter/openai/gpt-5.4-mini
 description: Break work into small verifiable tasks with acceptance criteria and dependency ordering
 ---
 

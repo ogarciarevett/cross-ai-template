@@ -1,4 +1,5 @@
 ---
+model: openrouter/openai/gpt-5.4-mini
 description: Simplify code for clarity and maintainability — reduce complexity without changing behavior
 ---
 

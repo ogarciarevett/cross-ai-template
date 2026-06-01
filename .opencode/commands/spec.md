@@ -1,4 +1,5 @@
 ---
+model: openrouter/openai/gpt-5.5
 description: Start spec-driven development — write a structured specification before writing code
 ---
 

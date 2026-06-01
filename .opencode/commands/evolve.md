@@ -1,4 +1,5 @@
 ---
+model: openrouter/openai/gpt-5.4
 description: "Scan the repo, diff code-reality vs the .ai/ contract+specs, and write proposed evolution patches to .ai/specs/97-evolution.md (proposes, never applies)"
 ---
 
