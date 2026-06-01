@@ -21,6 +21,13 @@
     for the other CLIs — see the `evolve` skill for the pattern. Keep `.ai/` language-agnostic:
     no per-tool runtime artifacts live here — parallel fan-out uses each tool's native
     sub-agents / Agent Teams (see `.ai/pipeline.md`), not committed scripts.
+- OPTIONAL per-stage model routing: a command or subagent may add a `model:` key to its
+  frontmatter (e.g. `model: openrouter/anthropic/claude-sonnet-4`) to pin the model for that
+  stage. **opencode** honors it on both `.opencode/commands/` and `.opencode/agents/`; it degrades
+  gracefully elsewhere (the Gemini transform keeps only `description` + body, and Claude Code /
+  Codex ignore unknown keys). Keep the COMMITTED `.ai/` sources vendor-neutral — never hardcode a
+  provider's model id into a template command; routing is an opt-in each project sets for its own
+  opencode runtime. See the README's "Per-stage model routing" recipe.
 - All spec/planning/acceptance artifacts live under `.ai/specs/` (`00-requirements.md`,
   `01-spec.md`, `02-plan.md`, `03-review.md`, `97-evolution.md` (from `/evolve`),
   `98-nice-to-haves.md`, `99-acceptance.md`).

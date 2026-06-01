@@ -126,6 +126,53 @@ Optional, on a cadence: `/evolve` — re-sync the `.ai/` contract to the code (a
 `/graphify` accelerates it on Claude Code).
 Full definition: [`.ai/pipeline.md`](.ai/pipeline.md).
 
+## 🎚️ Per-stage model routing (opencode)
+
+The lifecycle stages are just commands, so you can run **each stage on the best-fit model** —
+cheap/fast for mechanical work, frontier for reasoning — to optimize cost and tokens. This is
+**opt-in** and applies to **opencode** (the model-agnostic CLI). Single-vendor tools optimize
+*within* their own ladder instead (Claude Code routes Haiku↔Sonnet↔Opus) and ignore the key, so
+the same sources stay valid everywhere.
+
+Add an optional `model:` key to any command or persona's frontmatter — opencode honors it on both
+`.opencode/commands/` and `.opencode/agents/`:
+
+```yaml
+---
+description: Implement the next task incrementally — build, test, verify, commit
+model: openrouter/anthropic/claude-sonnet-4   # capable model for implementation
+---
+```
+
+A sensible cheap↔frontier map across the lifecycle (tune to taste; pull current model ids from
+[models.dev](https://models.dev)):
+
+| Stage | Tier | Why |
+|-------|------|-----|
+| `/spec`, `/review`, `/consensus-review` | frontier | contract design, subtle-bug catching |
+| `/build` | capable | implementation correctness |
+| `/plan`, `/test`, `/code-simplify` | fast/cheap | decomposition, red-green, mechanical edits |
+| `/ship` | cheap | mechanical commits |
+
+**One bill, every vendor.** Point opencode at [OpenRouter](https://openrouter.ai) so adopting a
+newly released model is a one-line change, not a new subscription. In `opencode.json`:
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "provider": {
+    "openrouter": { "options": { "apiKey": "{env:OPENROUTER_API_KEY}" } }
+  },
+  "model": "openrouter/anthropic/claude-sonnet-4"
+}
+```
+
+**Keep `.ai/` vendor-neutral.** Don't hardcode a provider's model id into a *committed* template
+command — that would betray the agnostic point. Per-stage routing is something a downstream
+project opts into for its own opencode runtime; the template just documents the convention.
+Automatic routers (OpenRouter's `openrouter/auto`, etc.) exist but optimize for quality, not cost
+— a declared per-stage map is the predictable choice.
+
 ## 📦 What's included
 
 - **Commands** (`.ai/commands/`): `bootstrap` (one-time setup), `spec`, `plan`, `build`,
