@@ -1,4 +1,5 @@
 ---
+model: openrouter/openai/gpt-5.5
 description: Conduct a five-axis code review — correctness, readability, architecture, security, performance
 ---
 

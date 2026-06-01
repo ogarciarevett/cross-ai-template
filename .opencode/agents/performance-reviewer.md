@@ -1,4 +1,5 @@
 ---
+model: openrouter/openai/gpt-5.4
 name: performance-reviewer
 description: Performance review specialist — the third seat in the /consensus-review 2-of-3 panel. Reviews hot paths, allocations, I/O and query cost, concurrency, and throughput under load.
 ---

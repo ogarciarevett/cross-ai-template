@@ -33,7 +33,16 @@ cd "$ROOT"
 
 AI=".ai"
 EXTRACT="$SCRIPT_DIR/lib/extract.awk"
+INJECT_MODEL="$SCRIPT_DIR/lib/inject-model.awk"
 SQ="'"
+
+# Optional per-stage model routing for the opencode runtime ONLY. Default = no-op, so the
+# template stays vendor-neutral; scripts/opencode-model-routing.sh overrides this if present.
+# It stamps `model:` into the .opencode/ copies only — the .claude/.codex/.gemini mirrors are
+# vendor-anchored and must never receive a foreign provider id.
+opencode_model_for() { echo ""; }
+ROUTING="$SCRIPT_DIR/opencode-model-routing.sh"
+[ -f "$ROUTING" ] && . "$ROUTING"
 
 ALL_INLINE=0
 for arg in "$@"; do
@@ -111,7 +120,13 @@ for f in "$AI"/commands/*.md; do
 	[ "$name" = "README" ] && continue
 	mkdir -p "$ROOT/.claude/commands" "$ROOT/.opencode/commands" "$ROOT/.gemini/commands"
 	cp "$f" "$ROOT/.claude/commands/$name.md"
-	cp "$f" "$ROOT/.opencode/commands/$name.md"
+	# opencode copy: stamp the routed model into its frontmatter (plain copy if unrouted).
+	ocm=$(opencode_model_for "$name")
+	if [ -n "$ocm" ]; then
+		awk -v MODEL="$ocm" -f "$INJECT_MODEL" "$f" >"$ROOT/.opencode/commands/$name.md"
+	else
+		cp "$f" "$ROOT/.opencode/commands/$name.md"
+	fi
 	desc=$(awk -v what=desc -v sq="$SQ" -f "$EXTRACT" "$f")
 	[ -n "$desc" ] || desc="$name command"
 	body=$(awk -v what=body -f "$EXTRACT" "$f")
@@ -132,8 +147,14 @@ for f in "$AI"/agents/*.md; do
 	[ "$name" = "README" ] && continue
 	mkdir -p "$ROOT/.claude/agents" "$ROOT/.opencode/agents" "$ROOT/.gemini/agents"
 	cp "$f" "$ROOT/.claude/agents/$name.md"
-	cp "$f" "$ROOT/.opencode/agents/$name.md"
 	cp "$f" "$ROOT/.gemini/agents/$name.md"
+	# opencode copy: stamp the routed model into its frontmatter (plain copy if unrouted).
+	ocm=$(opencode_model_for "$name")
+	if [ -n "$ocm" ]; then
+		awk -v MODEL="$ocm" -f "$INJECT_MODEL" "$f" >"$ROOT/.opencode/agents/$name.md"
+	else
+		cp "$f" "$ROOT/.opencode/agents/$name.md"
+	fi
 	agents=$((agents + 1))
 done
 
