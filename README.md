@@ -221,6 +221,31 @@ team-facing decisions go in commit messages or `docs/adr/`, not here. Never writ
   `git config core.hooksPath .githooks` is set (done by `sh scripts/install.sh`), then runs
   any language checks you (or `/bootstrap`) put in `.githooks/pre-commit.d/`.
 
+### ⬆️ Pulling template updates into a downstream repo
+
+When this template improves, refresh a repo you created from it with one command — run from
+inside that repo:
+
+```sh
+sh scripts/update-from-template.sh            # or, if you don't have it yet:
+npx @ogarciarevett/cross-ai-template update   # thin wrapper over the same shell script
+```
+
+It works because the template has a single source of truth: only `.ai/context.md` is
+project-specific. The updater refreshes the **generic** half — `.ai/pipeline.md`, commands,
+agents, skills, references, `.ai/templates/`, the sync machinery, and the dispatcher hooks —
+then re-runs the sync. It **preserves** your project files (`.ai/context.md`, your `.ai/specs/`,
+`scripts/opencode-model-routing.sh`, your `.githooks/*.d/` language hooks, `.gitignore`,
+`.gitattributes`) and saves the template's new contract as `.ai/context.md.incoming` for you to
+reconcile. It never deletes downstream-only commands (they're reported, not removed) and **never
+pushes**.
+
+Useful flags: `--dry-run` (preview), `--ref <branch|tag>` (pin a version), `--with-tooling`
+(also refresh `.mcp.json` / `opencode.json` / `.codex/` / `.agents/`, off by default), `--force`
+(allow a dirty tree). The one fuzzy step — merging new conventions into a customized
+`.ai/context.md` — is best handed to the **`/update-from-template`** slash command, which does
+that judgment merge in any of the supported CLIs.
+
 ## 🪝 Commit hooks (language-specific)
 
 The template's hooks are **agnostic dispatchers**: `pre-commit` runs the sync drift gate then

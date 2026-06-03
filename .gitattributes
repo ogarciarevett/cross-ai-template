@@ -12,3 +12,8 @@ GEMINI.md            linguist-generated=true
 .gemini/**           linguist-generated=true
 .opencode/**         linguist-generated=true
 .cursor/**           linguist-generated=true
+
+# The npm/ wrapper is an OPTIONAL `npx` convenience over scripts/update-from-template.sh (the
+# POSIX shell stays canonical). Mark it vendored so the language bar keeps reflecting the
+# shell-only core rather than counting a thin JS shim.
+npm/**               linguist-vendored=true
