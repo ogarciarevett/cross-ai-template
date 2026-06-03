@@ -231,7 +231,7 @@ sh scripts/update-from-template.sh            # if your repo already has the scr
 ```
 
 **First time, in a repo that predates the updater?** Older clones don't ship the script yet —
-bootstrap it once (any one of these, run from the repo root) and it self-installs for next time:
+bootstrap it once (either way, run from the repo root) and it self-installs for next time:
 
 ```sh
 # A. git only, no extra tools (recommended — git is already required)
@@ -241,26 +241,15 @@ sh scripts/update-from-template.sh
 
 # B. one-liner, nothing to check out (append `-s -- --dry-run` to preview first)
 curl -fsSL https://raw.githubusercontent.com/ogarciarevett/cross-ai-template/main/scripts/update-from-template.sh | sh
-
-# C. via your language's package manager — published from the companion repo
-#    github.com/ogarciarevett/cross-ai (this template itself ships NO package files)
-npx @ogarciarevett/cross-ai-cli update              # Node
-uvx cross-ai-cli update                              # Python/uv (or: pipx run cross-ai-cli update)
-cargo install cross-ai-cli && cross-ai-cli update    # Rust
 ```
 
-uv can run it straight from git, no publish needed:
+Both end the same way: the script clones the template, refreshes the generic half, and copies
+itself into `scripts/` — so every later update is just `sh scripts/update-from-template.sh`.
 
-```sh
-uvx --from "git+https://github.com/ogarciarevett/cross-ai.git#subdirectory=pip" \
-  cross-ai-cli update
-```
-
-Every path ends the same way: the script clones the template, refreshes the generic half, and
-copies itself into `scripts/` — so every later update is just `sh scripts/update-from-template.sh`.
-The published packages live in the **[cross-ai](https://github.com/ogarciarevett/cross-ai)** repo
-and are **optional ergonomic on-ramps**, not dependencies — this template stays 100%
-language-agnostic; the shell script is the real distribution and needs no runtime at all.
+> Prefer a packaged CLI over the shell one-liner? The updater is also published as `cross-ai-cli`
+> (npm · crates.io · PyPI) from the companion repo
+> **[cross-ai](https://github.com/ogarciarevett/cross-ai)** — an optional on-ramp. This template
+> itself ships no package files and needs no runtime.
 
 It works because the template has a single source of truth: only `.ai/context.md` is
 project-specific. The updater refreshes the **generic** half — `.ai/pipeline.md`, commands,

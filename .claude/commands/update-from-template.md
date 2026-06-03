@@ -13,8 +13,9 @@ Steps:
 1. **Preview, then apply.** Run `sh scripts/update-from-template.sh --dry-run` and read the report
    so you know what will change. If the working tree is dirty, tell the user to commit/stash first
    (or re-run with `--force`) — don't silently clobber. Then run `sh scripts/update-from-template.sh`.
-   - If the script isn't present yet (a repo that predates it), fall back to:
-     `npx @ogarciarevett/cross-ai-template update`.
+   - If the script isn't present yet (a repo that predates it), bootstrap it first with git, then
+     run it: `git fetch https://github.com/ogarciarevett/cross-ai-template.git main &&
+     git checkout FETCH_HEAD -- scripts/update-from-template.sh`.
    - Pass `--with-tooling` ONLY if the user wants root tool configs (`.mcp.json`, `opencode.json`,
      `.codex/`, `.agents/`) refreshed too — these are commonly project-customized, so default to off.
 
