@@ -242,24 +242,25 @@ sh scripts/update-from-template.sh
 # B. one-liner, nothing to check out (append `-s -- --dry-run` to preview first)
 curl -fsSL https://raw.githubusercontent.com/ogarciarevett/cross-ai-template/main/scripts/update-from-template.sh | sh
 
-# C. via your language's package manager (optional convenience — pick the one you already have)
-npx @ogarciarevett/cross-ai-template update    # Node      (once on npm)
-uvx cross-ai-template update                    # Python/uv (once on PyPI)
-cargo install cross-ai-template                 # Rust      (once on crates.io)
-cross-ai-template update
+# C. via your language's package manager — published from the companion repo
+#    github.com/ogarciarevett/cross-ai (this template itself ships NO package files)
+npx @ogarciarevett/cross-ai-cli update              # Node
+uvx cross-ai-cli update                              # Python/uv (or: pipx run cross-ai-cli update)
+cargo install cross-ai-cli && cross-ai-cli update    # Rust
 ```
 
-uv can even run it straight from git, no publish needed:
+uv can run it straight from git, no publish needed:
 
 ```sh
-uvx --from "git+https://github.com/ogarciarevett/cross-ai-template.git#subdirectory=pip" \
-  cross-ai-template update
+uvx --from "git+https://github.com/ogarciarevett/cross-ai.git#subdirectory=pip" \
+  cross-ai-cli update
 ```
 
 Every path ends the same way: the script clones the template, refreshes the generic half, and
 copies itself into `scripts/` — so every later update is just `sh scripts/update-from-template.sh`.
-The `npm/`, `cargo/`, and `pip/` packages are **optional ergonomic on-ramps**, not dependencies —
-the shell script is the language-agnostic distribution and needs no runtime at all.
+The published packages live in the **[cross-ai](https://github.com/ogarciarevett/cross-ai)** repo
+and are **optional ergonomic on-ramps**, not dependencies — this template stays 100%
+language-agnostic; the shell script is the real distribution and needs no runtime at all.
 
 It works because the template has a single source of truth: only `.ai/context.md` is
 project-specific. The updater refreshes the **generic** half — `.ai/pipeline.md`, commands,

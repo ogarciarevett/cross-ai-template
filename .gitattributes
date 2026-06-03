@@ -12,10 +12,3 @@ GEMINI.md            linguist-generated=true
 .gemini/**           linguist-generated=true
 .opencode/**         linguist-generated=true
 .cursor/**           linguist-generated=true
-
-# The npm/ cargo/ pip/ wrappers are OPTIONAL `npx`/`cargo install`/`uvx` conveniences over
-# scripts/update-from-template.sh (the POSIX shell stays canonical). Mark them vendored so the
-# language bar keeps reflecting the shell-only core rather than counting thin JS/Rust/Python shims.
-npm/**               linguist-vendored=true
-cargo/**             linguist-vendored=true
-pip/**               linguist-vendored=true
