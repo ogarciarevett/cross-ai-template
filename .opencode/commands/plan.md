@@ -1,17 +1,20 @@
 ---
 model: openrouter/openai/gpt-5.4-mini
-description: Break work into small verifiable tasks with acceptance criteria and dependency ordering
+description: Break ONE task into small verifiable steps with acceptance criteria and ordering
 ---
 
 Invoke the agent-skills:planning-and-task-breakdown skill.
 
-Read the existing spec (SPEC.md or equivalent) and the relevant codebase sections. Then:
+Read the task's spec — the `.ai/specs/<id>-spec.md` file (local id), or the external Linear /
+GitHub Projects ticket — and the relevant code sections. Then:
 
-1. Enter plan mode — read only, no code changes
-2. Identify the dependency graph between components
-3. Slice work vertically (one complete path per task, not horizontal layers)
-4. Write tasks with acceptance criteria and verification steps
-5. Add checkpoints between phases
-6. Present the plan for human review
-
-Save the plan to tasks/plan.md and task list to tasks/todo.md.
+1. Enter plan mode — read only, no code changes.
+2. Identify the dependency graph and slice the task vertically (one complete path per step,
+   not horizontal layers).
+3. Write each step with explicit, testable acceptance criteria and the exact verification
+   commands that will prove it (these become the Honest Implementation Report rows in `/build`).
+4. Add checkpoints between phases.
+5. Record the plan in `.ai/specs/02-plan.md` — the local task backlog/index. Each task row
+   carries its id (`A1`, `A2`, … or the external `ENG-421` / `#123` with a link to the ticket),
+   its status, and its decomposed steps.
+6. Present the plan for human review before `/build`.
