@@ -30,9 +30,11 @@
   Codex ignore unknown keys). Keep the COMMITTED `.ai/` sources vendor-neutral — never hardcode a
   provider's model id into a template command; routing is an opt-in each project sets for its own
   opencode runtime. See the README's "Per-stage model routing" recipe.
-- All spec/planning/acceptance artifacts live under `.ai/specs/` (`00-requirements.md`,
-  `01-spec.md`, `02-plan.md`, `03-review.md`, `97-evolution.md` (from `/evolve`),
-  `98-nice-to-haves.md`, `99-acceptance.md`).
+- All spec/planning/acceptance artifacts live under `.ai/specs/`. PROJECT-LEVEL docs use the
+  numeric scheme (`00-requirements.md`, `01-spec.md`, `02-plan.md`, `03-review.md`,
+  `97-evolution.md` (from `/evolve`), `98-nice-to-haves.md`, `99-acceptance.md`). PER-TASK specs
+  use a letter+number id (`A1-spec.md`, `A2-spec.md`, …) and are saved IN THE REPO ONLY when the
+  repo has no external backlog — see "Task identity & spec source" below.
 - Memory (`.ai/memory.md`) is LOCAL and gitignored — see the Memory protocol below.
 - To change a convention: edit `.ai/context.md` / `.ai/pipeline.md`, run
   `sh scripts/sync-ai-docs.sh`, and reflect it in `.ai/specs/01-spec.md`. At the end of every `/build` slice,
@@ -57,7 +59,8 @@ settled decisions. Example shape:
 Tests green + coverage ≥ <THRESHOLD> · typecheck clean (`<typecheck command>`) ·
 linter/formatter clean (`<lint command>`) · every external input validated at the boundary ·
 no secrets in logs · new errors recorded in `.ai/memory.md` · generated agent docs in sync
-(`sh scripts/sync-ai-docs.sh`, enforced by the pre-commit hook).
+(`sh scripts/sync-ai-docs.sh`, enforced by the pre-commit hook) · each task ships an Honest
+Implementation Report — no ✅ without pasted evidence (see "Honesty protocol" below).
 <!-- FILL: replace <THRESHOLD> and the <…> commands, and add any project-specific gates
 (e.g. "every DB write goes through the repository layer", "all endpoints rate-limited"). -->
 
@@ -66,6 +69,43 @@ NEVER push / open PRs / create remote branches / add collaborators / deploy.
 Commit locally; the human pushes. NEVER commit `.env` or any secret.
 <!-- FILL: add project-specific hard rules (e.g. "no live external/network calls in unit
 tests", "never hand-edit generated migrations"). -->
+
+## Task identity & spec source (the pipeline runs PER TASK)
+The lifecycle in `.ai/pipeline.md` runs once PER TASK — one task = one trip through
+`/spec → /plan → /build → /test → /review`. Before starting a task, fix its identity and decide
+where its spec lives. The rule, by backlog source:
+
+- **External backlog (Linear or GitHub Projects) → the tracker is the source of truth.** The
+  task id is the EXTERNAL id (e.g. `ENG-421`, GH issue / project item `#123`) and the ticket
+  body holds the spec. Do NOT create a local `<id>-spec.md` — that duplicates the ticket and
+  drifts from it. Read the ticket, cite its id in the spec summary, commits, plan, and acceptance.
+- **No external backlog → the spec is saved IN THE REPO** as `.ai/specs/<id>-spec.md` with a
+  letter+number id — `A1-spec.md`, `A2-spec.md`, `B1-spec.md`, … (letter = feature/epic,
+  number = task within it). `.ai/specs/02-plan.md` is the local backlog/index of every task id.
+- **Detection (vendor-neutral — works for every CLI):** GitHub Projects → `gh project list`
+  (or `gh project list --owner <org>`) returns ≥ 1 project, or issues are filed under a project.
+  Linear → a Linear MCP server is configured (`.mcp.json` / the tool's MCP config), `LINEAR_API_KEY`
+  is set, or branches/commits use the `eng-123` key style. Neither present → use the local
+  `A1/A2/…` scheme. `/spec` states which source it detected before writing anything.
+
+## Honesty protocol — Honest Implementation Metric (anti-overclaim)
+LLMs tend to over-report success ("done ✅") even when a step was skipped, stubbed, or never
+actually run. This contract forbids that. Every task ends with an **Honest Implementation
+Report**; `/build` emits it and `/acceptance` aggregates it. Rules (apply on every CLI):
+
+- **Per acceptance criterion, a status backed by PASTED evidence:** ✅ verified · ⚠️ partial ·
+  🔧 stubbed/mocked · ❌ not done · 🚫 blocked. A status is ✅ ONLY if the actual output proving it
+  is pasted inline — a test run, build/typecheck log, runtime output, or a `file:line` pointer.
+  No evidence → it is NOT ✅.
+- **Honest Implementation Metric (the number):** `verified ✅ criteria ÷ total criteria`, as a
+  0–100% score reported per task. A task is "done" only at 100% with evidence on every row.
+- **Two lists that are NEVER omitted:** *Unverified* — anything asserted but not proven by pasted
+  output ("should work", assumptions); *Could-not-do* — anything you could not perform here
+  (missing creds, no network, env limits, ambiguous spec), stated plainly.
+- **Under-claiming is fine; over-claiming is a contract violation.** Reporting ⚠️/❌/🚫 with a
+  clear reason is correct and expected. NEVER invent passing output, NEVER claim a test/build/run
+  you did not execute, NEVER mark ✅ just to look finished. When unsure, mark ⚠️ and say why. This
+  metric is graded on honesty, not on the score being high.
 
 ## Memory protocol (shared across Claude Code, Codex, Gemini, opencode)
 - `.ai/memory.md` is a LOCAL, per-developer working log — it is **gitignored**, not
@@ -87,24 +127,31 @@ tests", "never hand-edit generated migrations"). -->
 > The generic addyosmani/agent-skills lifecycle. Project-specific contract lives in
 > `.ai/context.md`. `sh scripts/sync-ai-docs.sh` assembles both into the generated entry files.
 
-## Per-feature pipeline (MANDATORY)
-For ANY non-trivial change a developer agent makes, follow the
-addyosmani/agent-skills lifecycle, per vertical slice:
-1. `/spec`   — if the slice introduces a new contract/behavior, write/extend the
-               spec in `.ai/specs/` before code (skill: spec-driven-development).
-               If it's covered by the approved `.ai/specs/01-spec.md`, cite the section.
-2. `/plan`   — decompose into tasks (skill: planning-and-task-breakdown);
-               append to `.ai/specs/02-plan.md`.
-3. `/build`  — implement ONE thin vertical slice at a time
-               (skill: incremental-implementation). Append every error hit to
-               `.ai/memory.md` as `symptom → root cause → fix`.
+## Per-task pipeline (MANDATORY)
+The lifecycle runs once PER TASK — one task = one vertical slice = one trip through these steps.
+First fix the task's identity, then run the loop (skills from addyosmani/agent-skills):
+0. **Identify** — fix the task id and its spec source (see `.ai/context.md` → "Task identity &
+               spec source"). External backlog present (Linear / GitHub Projects, detected via
+               `gh project list` or a Linear MCP / `LINEAR_API_KEY`) → the task id is the
+               EXTERNAL id and the ticket is the spec. Otherwise → a local `A1/A2/…` id with the
+               spec saved at `.ai/specs/<id>-spec.md`.
+1. `/spec`   — write the per-task spec to `.ai/specs/<id>-spec.md` (local id), OR read & cite the
+               external ticket (skill: spec-driven-development). If the task is already fully
+               covered by the approved `.ai/specs/01-spec.md`, cite the section instead.
+2. `/plan`   — decompose the task into dependency-ordered steps (skill: planning-and-task-breakdown);
+               record them under the task's id in the `.ai/specs/02-plan.md` backlog/index.
+3. `/build`  — implement ONE thin step at a time (skill: incremental-implementation). Append
+               every error hit to `.ai/memory.md` as `symptom → root cause → fix`. Close the task
+               with an **Honest Implementation Report** (see `.ai/context.md` → "Honesty
+               protocol"): per-criterion status + PASTED evidence, the Honest Implementation
+               Metric %, and the Unverified / Could-not-do lists. Over-claiming is a violation.
 4. `/test`   — red-green-refactor, prove with evidence, with the project's test runner
                (skill: test-driven-development). Reuse fixtures; no dup tests.
                Record out-of-scope items in `.ai/specs/98-nice-to-haves.md`.
 5. `/review` — self-review against the five-axis checklist
                (skill: code-review-and-quality). Push back on nested ifs >2,
                functions >50 lines, duplication, over-abstraction, bad names.
-Repeat per slice until the feature is complete.
+Repeat per task until the backlog is clear.
 
 ## Project-level finish (run ONCE, after all slices)
 6. `/consensus-review` — parallel fan-out: code-reviewer + security-auditor +
@@ -116,8 +163,9 @@ Repeat per slice until the feature is complete.
 8. `/ship` — Conventional, atomic commits ONLY. NEVER push, NEVER open a PR,
    NEVER touch a remote. Print `git log`, clean tree, and a ready-to-paste PR body.
 9. `/acceptance` (custom) — write `.ai/specs/99-acceptance.md`: per-requirement
-   traceability matrix (requirement → file:line → test → ✅/⚠️/❌), evidence, gaps,
-   one-line verdict. ✅ requires BOTH implementation AND a passing test.
+   traceability matrix (requirement → file:line → test → ✅/⚠️/❌), aggregating each task's
+   Honest Implementation Report (per the Honesty protocol), evidence, gaps, one-line verdict.
+   ✅ requires BOTH implementation AND a passing test — with the proving output pasted.
 10. `/goal` (built-in completion loop — the closer) — keep working across turns until
     acceptance holds; do NOT author a `goal.md`. Completion is local commits + green
     acceptance, never a push.

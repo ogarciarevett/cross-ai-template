@@ -57,7 +57,7 @@ contract edit that wasn't re-synced.
  ├─ agents/*.md           reviewer personas (code / security / performance / test)
  ├─ skills/*/SKILL.md     reusable workflow skills (TDD, code review, CI/CD, …)
  ├─ references/*.md       checklists the skills/personas cite
- ├─ specs/*.md            your project's requirements / spec / plan / review / acceptance
+ ├─ specs/*.md            project specs (00–99) + per-task specs (A1, A2, … or external ids)
  └─ memory.example.md     seed for the local, gitignored working log
 
       │   sh scripts/sync-ai-docs.sh   (POSIX shell, no runtime deps — deterministic)
@@ -103,24 +103,52 @@ pre-commit hook blocks committing a stale one. Change a convention in `.ai/`, ru
 ## 📐 Filling the specs (two ways)
 
 `.ai/specs/` ships as **empty skeletons** — the section headings *are* the required format.
-Populate them either way:
+Project-level docs use the numeric scheme (`00-requirements.md` → `01-spec.md` → `02-plan.md` →
+`99-acceptance.md`); per-task specs use a letter+number id (see below). Populate them either way:
 
-- **By hand** — edit `00-requirements.md` → `01-spec.md` → `02-plan.md`, following the headings
-  and replacing the `<!-- TODO -->` markers.
+- **By hand** — edit `00-requirements.md` → `01-spec.md`, then add per-task specs as you go.
 - **With the agent (recommended)** — this template already includes the spec generator. Run the
   lifecycle commands and let the agent write the files:
   ```
-  /spec     # → fills .ai/specs/01-spec.md   (skill: spec-driven-development)
-  /plan     # → fills .ai/specs/02-plan.md   (skill: planning-and-task-breakdown)
+  /spec     # → fixes the task id + writes .ai/specs/<id>-spec.md (or cites the ticket)
+  /plan     # → records the task's steps in .ai/specs/02-plan.md (the backlog index)
   ```
   Optional: `/excalidraw-spec` renders the architecture diagram via the excalidraw MCP server.
 
 You don't need an external spec tool — `/spec` + the `spec-driven-development` skill *are* the
 "open-spec" workflow, built in.
 
+### 🆔 Per-task spec ids (and when to skip them)
+
+The lifecycle runs **per task**, and each task needs an id and a home for its spec. The rule:
+
+- **If the repo uses an external backlog — Linear or GitHub Projects — that tracker is the source
+  of truth.** The task id is the external one (`ENG-421`, `#123`), the ticket body is the spec,
+  and **no local spec file is created** (it would only duplicate and drift from the ticket).
+- **If the repo has no external backlog**, the spec is **saved in the repo** as
+  `.ai/specs/<id>-spec.md` with a letter+number id — `A1-spec.md`, `A2-spec.md`, `B1-spec.md`, …
+  (letter = feature/epic, number = task) — from the `_task-spec.template.md` skeleton.
+  `02-plan.md` is the local backlog/index of every task id.
+
+`/spec` **detects the source** (vendor-neutral, so every CLI behaves the same): GitHub Projects
+via `gh project list`; Linear via a configured Linear MCP server / `LINEAR_API_KEY` / `eng-123`
+branch keys. Full rule: [`.ai/context.md`](.ai/context.md) → "Task identity & spec source".
+
+### ✅ Honest Implementation Metric (anti-overclaim)
+
+LLMs tend to claim a task is "done" even when a step was skipped, stubbed, or never run. The
+contract forbids that: every task closes with an **Honest Implementation Report** (emitted by
+`/build`, rolled up by `/acceptance`). Each acceptance criterion gets a status —
+✅ verified · ⚠️ partial · 🔧 stubbed · ❌ not done · 🚫 blocked — that is **✅ only if the proving
+command output is pasted inline**. The metric is `verified ✅ ÷ total = NN%`, plus explicit
+*Unverified* and *Could-not-do* lists. **Over-claiming is a contract violation; under-claiming is
+fine.** Because it lives in the inlined contract, every tool (Claude Code, Codex, Cursor, Gemini,
+opencode) enforces it. Full rule: [`.ai/context.md`](.ai/context.md) → "Honesty protocol".
+
 ## 🔁 The lifecycle
 
-Per vertical slice: `/spec → /plan → /build → /test → /review`.
+Per task: `/spec → /plan → /build → /test → /review` (one task = one vertical slice; `/build`
+closes it with an Honest Implementation Report).
 Once, at the end: `/consensus-review → /code-simplify → /ship → /acceptance → /goal`.
 Optional, on a cadence: `/evolve` — re-sync the `.ai/` contract to the code (all CLIs;
 `/graphify` accelerates it on Claude Code).

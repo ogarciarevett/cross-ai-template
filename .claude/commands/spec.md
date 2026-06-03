@@ -1,15 +1,31 @@
 ---
-description: Start spec-driven development — write a structured specification before writing code
+description: Start spec-driven development for ONE task — fix its id and spec source, then write its spec
 ---
 
-Invoke the agent-skills:spec-driven-development skill.
+Invoke the agent-skills:spec-driven-development skill. The lifecycle runs PER TASK; `/spec`
+opens a task by fixing its identity and writing (or locating) its spec.
 
-Begin by understanding what the user wants to build. Ask clarifying questions about:
-1. The objective and target users
-2. Core features and acceptance criteria
-3. Tech stack preferences and constraints
-4. Known boundaries (what to always do, ask first about, and never do)
+## 1. Determine the task id and spec source (state which you detected)
+See `.ai/context.md` → "Task identity & spec source". Detect the backlog source — this works on
+every CLI (no tool lock-in):
 
-Then generate a structured spec covering all six core areas: objective, commands, project structure, code style, testing strategy, and boundaries.
+- **External backlog — Linear or GitHub Projects.** Detect: GitHub Projects via
+  `gh project list` (or `gh project list --owner <org>`) returning ≥ 1 project; Linear via a
+  configured Linear MCP server (`.mcp.json` / the tool's MCP config), a `LINEAR_API_KEY`, or
+  `eng-123`-style branch/commit keys. If found, the task id is the EXTERNAL id (`ENG-421`,
+  `#123`) and the ticket body is the spec. Do NOT create a local `<id>-spec.md`. Read the ticket,
+  summarize its goal + acceptance criteria, cite the id, and skip to step 3.
+- **No external backlog.** Assign the next local id in the `A1, A2, B1, …` scheme
+  (letter = feature/epic, number = task within it) and save the spec as `.ai/specs/<id>-spec.md`,
+  copied from `.ai/specs/_task-spec.template.md`. Register the task in the `.ai/specs/02-plan.md`
+  index.
 
-Save the spec as SPEC.md in the project root and confirm with the user before proceeding.
+## 2. Write the per-task spec
+Ask clarifying questions only where needed: objective, acceptance criteria (each must be
+testable), constraints, and boundaries. Then fill the task spec — goal, scope/non-goals,
+acceptance criteria, interfaces/data touched, risks. Trace UP to `.ai/specs/01-spec.md` (the
+project architecture); don't restate it. Keep one task per spec file.
+
+## 3. Confirm
+Show the task id, where its spec lives (local `.ai/specs/<id>-spec.md` or the external ticket),
+and the acceptance criteria. Confirm with the user (`approved` / `change: …`) before `/plan`.
