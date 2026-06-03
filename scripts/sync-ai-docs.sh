@@ -14,7 +14,8 @@
 #   .ai/skills/<name>/SKILL.md canonical skills (+ bundled files)
 #   .ai/references/*.md        checklists referenced by path (NOT generated)
 #
-# GENERATED (gitignored — materialized here; never hand-edit):
+# GENERATED (committed, but marked linguist-generated in .gitattributes; never hand-edit — the
+# pre-commit drift gate regenerates these and blocks the commit if a committed copy is stale):
 #   AGENTS.md, .ai/generated/rules.mdc  — INLINE full contract (canonical; plain-text readers)
 #   CLAUDE.md, GEMINI.md                — thin `@`-import stubs (Claude/Gemini resolve imports)
 #   .cursor/rules/00-context.mdc        — symlink → .ai/generated/rules.mdc

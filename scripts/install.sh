@@ -19,7 +19,7 @@ git config core.hooksPath .githooks
 echo "✓ core.hooksPath → .githooks"
 
 # 2. Ensure everything that must run is executable.
-chmod +x scripts/sync-ai-docs.sh scripts/install.sh 2>/dev/null || true
+chmod +x scripts/sync-ai-docs.sh scripts/install.sh scripts/update-from-template.sh 2>/dev/null || true
 [ -f .githooks/pre-commit ] && chmod +x .githooks/pre-commit
 [ -f .githooks/post-commit ] && chmod +x .githooks/post-commit
 echo "✓ hooks + scripts executable"

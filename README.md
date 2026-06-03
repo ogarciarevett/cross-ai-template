@@ -249,6 +249,51 @@ team-facing decisions go in commit messages or `docs/adr/`, not here. Never writ
   `git config core.hooksPath .githooks` is set (done by `sh scripts/install.sh`), then runs
   any language checks you (or `/bootstrap`) put in `.githooks/pre-commit.d/`.
 
+### ⬆️ Pulling template updates into a downstream repo
+
+When this template improves, refresh a repo you created from it with one command — run from
+inside that repo:
+
+```sh
+sh scripts/update-from-template.sh            # if your repo already has the script
+```
+
+**First time, in a repo that predates the updater?** Older clones don't ship the script yet —
+bootstrap it once (either way, run from the repo root) and it self-installs for next time:
+
+```sh
+# A. git only, no extra tools (recommended — git is already required)
+git fetch https://github.com/ogarciarevett/cross-ai-template.git main
+git checkout FETCH_HEAD -- scripts/update-from-template.sh
+sh scripts/update-from-template.sh
+
+# B. one-liner, nothing to check out (append `-s -- --dry-run` to preview first)
+curl -fsSL https://raw.githubusercontent.com/ogarciarevett/cross-ai-template/main/scripts/update-from-template.sh | sh
+```
+
+Both end the same way: the script clones the template, refreshes the generic half, and copies
+itself into `scripts/` — so every later update is just `sh scripts/update-from-template.sh`.
+
+> Prefer a packaged CLI over the shell one-liner? The updater is also published as `cross-ai-cli`
+> (npm · crates.io · PyPI) from the companion repo
+> **[cross-ai](https://github.com/ogarciarevett/cross-ai)** — an optional on-ramp. This template
+> itself ships no package files and needs no runtime.
+
+It works because the template has a single source of truth: only `.ai/context.md` is
+project-specific. The updater refreshes the **generic** half — `.ai/pipeline.md`, commands,
+agents, skills, references, `.ai/templates/`, the sync machinery, and the dispatcher hooks —
+then re-runs the sync. It **preserves** your project files (`.ai/context.md`, your `.ai/specs/`,
+`scripts/opencode-model-routing.sh`, your `.githooks/*.d/` language hooks, `.gitignore`,
+`.gitattributes`) and saves the template's new contract as `.ai/context.md.incoming` for you to
+reconcile. It never deletes downstream-only commands (they're reported, not removed) and **never
+pushes**.
+
+Useful flags: `--dry-run` (preview), `--ref <branch|tag>` (pin a version), `--with-tooling`
+(also refresh `.mcp.json` / `opencode.json` / `.codex/` / `.agents/`, off by default), `--force`
+(allow a dirty tree). The one fuzzy step — merging new conventions into a customized
+`.ai/context.md` — is best handed to the **`/update-from-template`** slash command, which does
+that judgment merge in any of the supported CLIs.
+
 ## 🪝 Commit hooks (language-specific)
 
 The template's hooks are **agnostic dispatchers**: `pre-commit` runs the sync drift gate then

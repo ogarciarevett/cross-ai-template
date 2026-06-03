@@ -158,7 +158,8 @@ Repeat per task until the backlog is clear.
    performance-reviewer; require 2-of-3 APPROVE; write `.ai/specs/03-review.md`.
    (This is the "parallel fan-out" stage — it lives here, not in `/ship`.) Run the three
    reviewers as parallel sub-agents — an Agent Team in Claude Code, the tool's native
-   sub-agents elsewhere (see "Parallel work" below).
+   sub-agents elsewhere (see "Parallel work" below). Structure the panel + synthesis with the
+   `six-thinking-hats` skill (⚫/⚪ Black+White audit → 🟡/🟢 Yellow+Green synthesis → 🔵 Blue verdict).
 7. `/code-simplify` — apply reviewer findings (Chesterton's Fence).
 8. `/ship` — Conventional, atomic commits ONLY. NEVER push, NEVER open a PR,
    NEVER touch a remote. Print `git log`, clean tree, and a ready-to-paste PR body.
