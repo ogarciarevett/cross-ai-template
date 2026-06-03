@@ -242,13 +242,24 @@ sh scripts/update-from-template.sh
 # B. one-liner, nothing to check out (append `-s -- --dry-run` to preview first)
 curl -fsSL https://raw.githubusercontent.com/ogarciarevett/cross-ai-template/main/scripts/update-from-template.sh | sh
 
-# C. Node users (only once the npm package is published)
-npx @ogarciarevett/cross-ai-template update
+# C. via your language's package manager (optional convenience — pick the one you already have)
+npx @ogarciarevett/cross-ai-template update    # Node      (once on npm)
+uvx cross-ai-template update                    # Python/uv (once on PyPI)
+cargo install cross-ai-template                 # Rust      (once on crates.io)
+cross-ai-template update
 ```
 
-All three end the same way: the script clones the template, refreshes the generic half, and
+uv can even run it straight from git, no publish needed:
+
+```sh
+uvx --from "git+https://github.com/ogarciarevett/cross-ai-template.git#subdirectory=pip" \
+  cross-ai-template update
+```
+
+Every path ends the same way: the script clones the template, refreshes the generic half, and
 copies itself into `scripts/` — so every later update is just `sh scripts/update-from-template.sh`.
-No npm required; the package is an optional convenience, not a dependency.
+The `npm/`, `cargo/`, and `pip/` packages are **optional ergonomic on-ramps**, not dependencies —
+the shell script is the language-agnostic distribution and needs no runtime at all.
 
 It works because the template has a single source of truth: only `.ai/context.md` is
 project-specific. The updater refreshes the **generic** half — `.ai/pipeline.md`, commands,
