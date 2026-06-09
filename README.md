@@ -62,8 +62,9 @@ contract edit that wasn't re-synced.
 
       │   sh scripts/sync-ai-docs.sh   (POSIX shell, no runtime deps — deterministic)
       ▼
-AGENTS.md · CLAUDE.md · GEMINI.md · .ai/generated/rules.mdc      ← contract entry files
-.claude/ · .gemini/ (TOML) · .opencode/ · .cursor/ (symlink)     ← per-tool mirrors
+AGENTS.md · CLAUDE.md · GEMINI.md                               ← committed contract entry files
+.ai/generated/ · .claude/ · .gemini/ · .opencode/ · .cursor/   ← per-tool mirrors: GITIGNORED,
+                                                                 regenerated locally (no git dups)
 ```
 
 | Tool | Reads | Produced as |
@@ -74,15 +75,19 @@ AGENTS.md · CLAUDE.md · GEMINI.md · .ai/generated/rules.mdc      ← contract
 | Gemini CLI | `GEMINI.md` + `.gemini/{commands(TOML),agents,skills}` | `@`-import stub + transformed assets |
 | opencode | `.ai/*` directly + `.opencode/{commands,agents}` | reads source + copied assets |
 
-**Never edit a generated file** — your edit is overwritten on the next sync, and the
-pre-commit hook blocks committing a stale one. Change a convention in `.ai/`, run
-`sh scripts/sync-ai-docs.sh`, commit.
+**Never edit a generated file** — your edit is overwritten on the next sync. The per-tool mirrors
+(`.claude/ .gemini/ .opencode/ .cursor/ .ai/generated/`) are **gitignored**, so the repo holds
+only the `.ai/` source with no duplicated copies — **run `sh scripts/install.sh` once after
+cloning** or your tools see zero skills. Only the root contract files (`AGENTS.md` / `CLAUDE.md` /
+`GEMINI.md`) stay committed (readable on GitHub, no build step); the pre-commit hook gates those.
+Change a convention in `.ai/`, run `sh scripts/sync-ai-docs.sh`, commit.
 
 ## ⚡ Quick start (adopt into your repo)
 
-1. Copy `.ai/`, `scripts/`, `.gitignore`, `.githooks/`, and the per-tool dirs
-   (`.claude/ .gemini/ .opencode/ .cursor/ .codex/ .mcp.json`) into your repo — or start your
-   repo from this template. **No `package.json` needed** — the machinery is pure shell.
+1. Copy `.ai/`, `scripts/`, `.gitignore`, `.gitattributes`, `.githooks/`, `.codex/config.toml`,
+   and `.mcp.json` into your repo — or start your repo from this template. The per-tool mirrors
+   (`.claude/ .gemini/ .opencode/ .cursor/`) are **not** copied or committed — `install.sh`
+   regenerates them locally. **No `package.json` needed** — the machinery is pure shell.
 2. Install the hooks and run the first sync (one command, no runtime to install):
    ```sh
    sh scripts/install.sh   # git config core.hooksPath .githooks + chmod + first sync
@@ -242,9 +247,10 @@ team-facing decisions go in commit messages or `docs/adr/`, not here. Never writ
 
 ## 🔄 Keeping it in sync
 
-- `sh scripts/sync-ai-docs.sh` — regenerate everything from `.ai/` (no runtime deps).
-- `sh scripts/sync-ai-docs.sh && git diff --exit-code` — regenerate and fail if anything
-  changed (use in CI).
+- `sh scripts/sync-ai-docs.sh` — regenerate every per-tool mirror from `.ai/` (no runtime deps).
+  The mirrors are gitignored/local-only, so run this once per clone (or `sh scripts/install.sh`).
+- `sh scripts/sync-ai-docs.sh && git diff --exit-code` — regenerate and fail if a **committed**
+  file drifted (only `AGENTS.md` / `CLAUDE.md` / `GEMINI.md` are committed now; use in CI).
 - `.githooks/pre-commit` runs the sync gate automatically once
   `git config core.hooksPath .githooks` is set (done by `sh scripts/install.sh`), then runs
   any language checks you (or `/bootstrap`) put in `.githooks/pre-commit.d/`.

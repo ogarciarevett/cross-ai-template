@@ -1,10 +1,14 @@
 #!/usr/bin/env sh
 # pre-commit — two layers, both language-agnostic by themselves:
 #
-#   1. SYNC DRIFT GATE (always, template infrastructure): regenerate the per-tool agent docs
-#      from .ai/ with the dependency-free shell generator and block the commit if the committed
-#      mirrors are stale. The generator is deterministic (no timestamps), so this only fires on
-#      real drift. Needs nothing but a POSIX shell + awk/sed — no node/bun/python.
+#   1. SYNC DRIFT GATE (always, template infrastructure): regenerate every per-tool artifact
+#      from .ai/ with the dependency-free shell generator. The per-tool skill/agent/command
+#      mirrors (.claude/.gemini/.opencode/.cursor, .ai/generated) are gitignored (local-only) so
+#      the repo holds no duplicates — regenerating them just refreshes the dev's working tree.
+#      The only generated files still committed are the root contract entries (AGENTS.md,
+#      CLAUDE.md, GEMINI.md); the gate blocks the commit if THOSE drift from .ai/. The generator
+#      is deterministic (no timestamps), so this only fires on real drift. Needs nothing but a
+#      POSIX shell + awk/sed — no node/bun/python.
 #
 #   2. PROJECT QUALITY GATES (optional, language-specific): run every executable hook dropped
 #      into `.githooks/pre-commit.d/` by `/bootstrap`. That is where the chosen language's
@@ -20,10 +24,11 @@ cd "$REPO_ROOT"
 # --- 1. sync drift gate -------------------------------------------------------
 sh scripts/sync-ai-docs.sh >/dev/null
 
-PATHS="AGENTS.md CLAUDE.md GEMINI.md .ai/generated .cursor .claude .gemini .opencode"
+# Only the committed contract entries are gated; the per-tool mirrors are gitignored (local-only).
+PATHS="AGENTS.md CLAUDE.md GEMINI.md"
 # shellcheck disable=SC2086  # $PATHS is a deliberate space-separated list — must word-split into args.
 if ! git diff --quiet -- $PATHS; then
-	echo "✗ Generated agent docs are out of sync with .ai/." >&2
+	echo "✗ The committed contract files (AGENTS.md/CLAUDE.md/GEMINI.md) are out of sync with .ai/." >&2
 	echo "  Run 'sh scripts/sync-ai-docs.sh', then stage the regenerated files:" >&2
 	# shellcheck disable=SC2086
 	git --no-pager diff --name-only -- $PATHS >&2
