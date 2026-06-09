@@ -1,14 +1,12 @@
 # GitHub Linguist hints — keep the repo's language bar honest.
 #
-# The per-tool configs are GENERATED from .ai/ by scripts/sync-ai-docs.sh. They are committed
-# (so the pre-commit drift gate can diff them), but they are duplicates of the .ai/ sources.
-# Mark them `linguist-generated` so they (a) don't inflate the language statistics with copies
-# and (b) collapse by default in diffs/PRs. The language bar then reflects the SOURCE.
+# The per-tool skill/agent/command mirrors (.claude/.gemini/.opencode/.cursor, .ai/generated)
+# are GENERATED from .ai/ by scripts/sync-ai-docs.sh and are now gitignored (local-only) — they
+# are not in the repo, so they need no Linguist markers.
+#
+# The only generated files still committed are the root contract entries: they INLINE / @-import
+# the .ai/ contract, so they are duplicates of the source. Mark them `linguist-generated` so they
+# (a) don't inflate the language statistics with copies and (b) collapse by default in diffs/PRs.
 AGENTS.md            linguist-generated=true
 CLAUDE.md            linguist-generated=true
 GEMINI.md            linguist-generated=true
-.ai/generated/**     linguist-generated=true
-.claude/**           linguist-generated=true
-.gemini/**           linguist-generated=true
-.opencode/**         linguist-generated=true
-.cursor/**           linguist-generated=true
