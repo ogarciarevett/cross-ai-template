@@ -17,8 +17,10 @@
   - `AGENTS.md` and `.ai/generated/rules.mdc` INLINE the full contract — readable
     everywhere (GitHub web view, Codex, any tool without `@`-import support). `AGENTS.md` is the
     committed canonical copy; `.ai/generated/rules.mdc` is its gitignored local twin.
-  - `CLAUDE.md` and `GEMINI.md` are thin `@`-import stubs — Claude Code and Gemini CLI
-    resolve imports, so the contract is NOT duplicated into them.
+  - `CLAUDE.md` and `GEMINI.md` are thin stubs that just `@`-import `AGENTS.md` (the committed
+    canonical inline, which itself ends with the `@.ai/memory.md` reference) — Claude Code and
+    Gemini CLI resolve the import, so the contract + memory ride along through one canonical entry
+    and are NOT duplicated into them.
   - `.cursor/rules/00-context.mdc` is a (gitignored, regenerated) symlink → `.ai/generated/rules.mdc`.
     Add another IDE by symlinking its rules path to that artifact — no script change needed.
   - opencode reads `.ai/context.md` + `.ai/pipeline.md` + `.ai/memory.md` directly.
