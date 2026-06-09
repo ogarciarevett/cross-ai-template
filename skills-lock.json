@@ -1,4 +1,16 @@
 {
   "version": 1,
-  "skills": {}
+  "skills": {
+    "impeccable": {
+      "source": "pbakaus/impeccable",
+      "sourceType": "github",
+      "skillPath": "skill/SKILL.src.md",
+      "computedHash": "affc0fad8c582dd35dd4bc483d8a885c2e30839a2b8ef2baad28fea0c87e8c70",
+      "upstreamCommit": "1aedbcf",
+      "upstreamVersion": "3.5.0",
+      "license": "Apache-2.0",
+      "adapted": true,
+      "note": "Dependency-free design-skill adaptation: SKILL.md + reference/ vendored under .ai/skills/impeccable; impeccable's Node CLI (detector, palette/context helpers) and live mode are NOT bundled and degrade to manual fallbacks. NOT a verbatim mirror — do not auto-overwrite from upstream."
+    }
+  }
 }
