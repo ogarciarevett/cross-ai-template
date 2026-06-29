@@ -35,6 +35,16 @@ if ! git diff --quiet -- $PATHS; then
 	exit 1
 fi
 
+# Guard the source-of-truth model: per-tool mirrors and local runtime adapters must never become
+# tracked again. Root entry files and .codex/config.toml are intentionally committed.
+TRACKED_MIRRORS=$(git ls-files -- .claude .gemini .opencode .cursor .ai/generated .agents .codex/agents)
+if [ -n "$TRACKED_MIRRORS" ]; then
+	echo "✗ Generated/local agent mirror files are tracked, but .ai/ must remain the source of truth." >&2
+	echo "  Remove these from git and let scripts/sync-ai-docs.sh or the tool runtime recreate them locally:" >&2
+	printf '%s\n' "$TRACKED_MIRRORS" >&2
+	exit 1
+fi
+
 # --- 2. project quality gates (added by /bootstrap, per language) -------------
 if [ -d "$HOOK_DIR/pre-commit.d" ]; then
 	for hook in "$HOOK_DIR"/pre-commit.d/*; do

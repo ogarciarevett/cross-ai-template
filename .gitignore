@@ -27,6 +27,8 @@
 .opencode/agents/
 .opencode/commands/
 .cursor/rules/00-context.mdc
+.agents/
+.codex/agents
 
 # Claude Code per-developer local settings (not shared).
 .claude/settings.local.json

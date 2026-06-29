@@ -20,7 +20,7 @@
 ![Gemini CLI](https://img.shields.io/badge/Gemini_CLI-4285F4?style=for-the-badge)
 ![opencode](https://img.shields.io/badge/opencode-FF6B00?style=for-the-badge)
 
-![skills](https://img.shields.io/badge/skills-25-8b5cf6?style=flat-square)
+![skills](https://img.shields.io/badge/skills-27-8b5cf6?style=flat-square)
 ![commands](https://img.shields.io/badge/commands-12-06b6d4?style=flat-square)
 ![personas](https://img.shields.io/badge/personas-4-ec4899?style=flat-square)
 ![config drift](https://img.shields.io/badge/config_drift-zero-22c55e?style=flat-square)
@@ -62,32 +62,37 @@ contract edit that wasn't re-synced.
 
       │   sh scripts/sync-ai-docs.sh   (POSIX shell, no runtime deps — deterministic)
       ▼
-AGENTS.md · CLAUDE.md · GEMINI.md                               ← committed contract entry files
-.ai/generated/ · .claude/ · .gemini/ · .opencode/ · .cursor/   ← per-tool mirrors: GITIGNORED,
-                                                                 regenerated locally (no git dups)
+AGENTS.md · CLAUDE.md · GEMINI.md                              ← committed contract entry files
+.ai/generated/ · .claude/ · .gemini/ · .opencode/ · .cursor/  ← sync-owned mirrors: GITIGNORED,
+                                                                regenerated locally (no git dups)
+.agents/ · .codex/agents/                                      ← Codex-local runtime adapters:
+                                                                GITIGNORED, tool-owned
 ```
 
 | Tool | Reads | Produced as |
 |------|-------|-------------|
 | Claude Code | `CLAUDE.md` + `.claude/{commands,agents,skills}` | `@AGENTS.md` stub + copied assets |
 | Cursor | `.cursor/rules/00-context.mdc` | symlink → `.ai/generated/rules.mdc` |
-| Codex | `AGENTS.md` + `.codex/config.toml` | inlined contract + MCP config |
+| Codex | `AGENTS.md` + `.codex/config.toml` | inlined contract + MCP config; may create ignored local adapters |
 | Gemini CLI | `GEMINI.md` + `.gemini/{commands(TOML),agents,skills}` | `@AGENTS.md` stub + transformed assets |
 | opencode | `.ai/*` directly + `.opencode/{commands,agents}` | reads source + copied assets |
 
 **Never edit a generated file** — your edit is overwritten on the next sync. The per-tool mirrors
-(`.claude/ .gemini/ .opencode/ .cursor/ .ai/generated/`) are **gitignored**, so the repo holds
-only the `.ai/` source with no duplicated copies — **run `sh scripts/install.sh` once after
-cloning** or your tools see zero skills. Only the root contract files (`AGENTS.md` / `CLAUDE.md` /
-`GEMINI.md`) stay committed (readable on GitHub, no build step); the pre-commit hook gates those.
-Change a convention in `.ai/`, run `sh scripts/sync-ai-docs.sh`, commit.
+(`.claude/ .gemini/ .opencode/ .cursor/ .ai/generated/`) and Codex-local adapters
+(`.agents/ .codex/agents/`) are **gitignored**, so the repo holds only the `.ai/` source with no
+duplicated copies — **run `sh scripts/install.sh` once after cloning** or your tools see zero
+skills. Codex may recreate its adapters when the repo loads; that is runtime plumbing, not source
+of truth. Only the root contract files (`AGENTS.md` / `CLAUDE.md` / `GEMINI.md`) stay committed
+(readable on GitHub, no build step); the pre-commit hook gates those. Change a convention in
+`.ai/`, run `sh scripts/sync-ai-docs.sh`, commit.
 
 ## ⚡ Quick start (adopt into your repo)
 
 1. Copy `.ai/`, `scripts/`, `.gitignore`, `.gitattributes`, `.githooks/`, `.codex/config.toml`,
    and `.mcp.json` into your repo — or start your repo from this template. The per-tool mirrors
-   (`.claude/ .gemini/ .opencode/ .cursor/`) are **not** copied or committed — `install.sh`
-   regenerates them locally. **No `package.json` needed** — the machinery is pure shell.
+   (`.claude/ .gemini/ .opencode/ .cursor/`) and Codex adapters (`.agents/ .codex/agents/`) are
+   **not** copied or committed — `install.sh` or the tool runtime regenerates them locally.
+   **No `package.json` needed** — the machinery is pure shell.
 2. Install the hooks and run the first sync (one command, no runtime to install):
    ```sh
    sh scripts/install.sh   # git config core.hooksPath .githooks + chmod + first sync
@@ -224,9 +229,9 @@ Automatic routers (OpenRouter's `openrouter/auto`, etc.) exist but optimize for 
   and `evolve` (contract drift detection).
 - **Personas** (`.ai/agents/`): `code-reviewer`, `security-auditor`, `performance-reviewer`,
   `test-engineer`. See [`.ai/agents/README.md`](.ai/agents/README.md).
-- **Skills** (`.ai/skills/`): ~25 stack-agnostic workflows — TDD, code review, CI/CD,
-  incremental implementation, security hardening, debugging, API design, plus `evolve`
-  (graphify-backed contract-vs-code drift) and more.
+- **Skills** (`.ai/skills/`): 27 reusable workflows — TDD, code review, CI/CD,
+  incremental implementation, security hardening, debugging, API design, UI/UX craft via
+  `impeccable`, plus `evolve` (graphify-backed contract-vs-code drift) and more.
 - **Parallel fan-out** (no committed scripts): the `/consensus-review` 2-of-3 panel,
   file-disjoint parallel slices, and `/evolve`'s per-dimension scan all run on each tool's
   **native** parallelism — an Agent Team in Claude Code, sub-agents in Codex / Gemini /
@@ -248,7 +253,8 @@ team-facing decisions go in commit messages or `docs/adr/`, not here. Never writ
 ## 🔄 Keeping it in sync
 
 - `sh scripts/sync-ai-docs.sh` — regenerate every per-tool mirror from `.ai/` (no runtime deps).
-  The mirrors are gitignored/local-only, so run this once per clone (or `sh scripts/install.sh`).
+  The mirrors/adapters are gitignored/local-only, so run this once per clone (or
+  `sh scripts/install.sh`).
 - `sh scripts/sync-ai-docs.sh && git diff --exit-code` — regenerate and fail if a **committed**
   file drifted (only `AGENTS.md` / `CLAUDE.md` / `GEMINI.md` are committed now; use in CI).
 - `.githooks/pre-commit` runs the sync gate automatically once
