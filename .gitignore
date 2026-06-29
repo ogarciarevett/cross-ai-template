@@ -38,3 +38,7 @@
 # README embeds IS committed; the script and the intermediate asciinema cast are not.
 scripts/record-demo.sh
 docs/imgs/demo.cast
+
+.agents/
+
+.codex/agents
