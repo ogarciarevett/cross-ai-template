@@ -16,12 +16,16 @@
 #
 # GENERATED (committed, but marked linguist-generated in .gitattributes; never hand-edit — the
 # pre-commit drift gate regenerates these and blocks the commit if a committed copy is stale):
-#   AGENTS.md, .ai/generated/rules.mdc  — INLINE full contract (canonical; plain-text readers)
+#   AGENTS.md                           — INLINE full contract (canonical; plain-text readers)
 #   CLAUDE.md, GEMINI.md                — thin `@`-import stubs (Claude/Gemini resolve imports)
+#
+# GENERATED (local-only, gitignored mirrors/adapters; never hand-edit or commit):
+#   .ai/generated/rules.mdc             — cursor-friendly INLINE contract twin
 #   .cursor/rules/00-context.mdc        — symlink → .ai/generated/rules.mdc
 #   .claude/commands/*.md, .opencode/commands/*.md (copy) + .gemini/commands/*.toml (transform)
 #   .claude/agents/*.md, .opencode/agents/*.md, .gemini/agents/*.md (copy)
 #   .claude/skills/<n>/ (Claude + opencode) + .gemini/skills/<n>/ (Gemini)
+#   .agents/, .codex/agents/            — Codex may create these runtime adapters itself
 #
 # `--all-inline` forces the contract stubs (CLAUDE/GEMINI) to inline too. Output is
 # deterministic (no timestamps) so the pre-commit `git diff` only fires on real changes.
@@ -112,6 +116,23 @@ toml_basic() {
 toml_multiline_body() {
 	printf '%s' "$1" | sed 's/\\/\\\\/g; s/"""/\\"\\"\\"/g'
 }
+
+reset_generated_dir() {
+	rm -rf "$1"
+	mkdir -p "$1"
+}
+
+# Start local mirrors from a clean slate so deleting from .ai/ removes stale generated copies.
+# Keep tool-owned config/cache roots such as .claude/settings.local.json, .codex/config.toml,
+# .codex/agents, and .agents untouched.
+reset_generated_dir "$ROOT/.claude/commands"
+reset_generated_dir "$ROOT/.claude/agents"
+reset_generated_dir "$ROOT/.claude/skills"
+reset_generated_dir "$ROOT/.gemini/commands"
+reset_generated_dir "$ROOT/.gemini/agents"
+reset_generated_dir "$ROOT/.gemini/skills"
+reset_generated_dir "$ROOT/.opencode/commands"
+reset_generated_dir "$ROOT/.opencode/agents"
 
 # Commands → Claude/opencode (copy raw) + Gemini (md → toml).
 commands=0

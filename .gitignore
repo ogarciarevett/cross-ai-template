@@ -27,6 +27,8 @@
 .opencode/agents/
 .opencode/commands/
 .cursor/rules/00-context.mdc
+.agents/
+.codex/agents
 
 # Claude Code per-developer local settings (not shared).
 .claude/settings.local.json
@@ -38,7 +40,3 @@
 # README embeds IS committed; the script and the intermediate asciinema cast are not.
 scripts/record-demo.sh
 docs/imgs/demo.cast
-
-.agents/
-
-.codex/agents
