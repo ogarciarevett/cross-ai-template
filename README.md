@@ -71,10 +71,10 @@ AGENTS.md · CLAUDE.md · GEMINI.md                              ← committed c
 
 | Tool | Reads | Produced as |
 |------|-------|-------------|
-| Claude Code | `CLAUDE.md` + `.claude/{commands,agents,skills}` | `@`-import stub + copied assets |
+| Claude Code | `CLAUDE.md` + `.claude/{commands,agents,skills}` | `@AGENTS.md` stub + copied assets |
 | Cursor | `.cursor/rules/00-context.mdc` | symlink → `.ai/generated/rules.mdc` |
 | Codex | `AGENTS.md` + `.codex/config.toml` | inlined contract + MCP config; may create ignored local adapters |
-| Gemini CLI | `GEMINI.md` + `.gemini/{commands(TOML),agents,skills}` | `@`-import stub + transformed assets |
+| Gemini CLI | `GEMINI.md` + `.gemini/{commands(TOML),agents,skills}` | `@AGENTS.md` stub + transformed assets |
 | opencode | `.ai/*` directly + `.opencode/{commands,agents}` | reads source + copied assets |
 
 **Never edit a generated file** — your edit is overwritten on the next sync. The per-tool mirrors

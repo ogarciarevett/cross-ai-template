@@ -17,7 +17,7 @@
 # GENERATED (committed, but marked linguist-generated in .gitattributes; never hand-edit — the
 # pre-commit drift gate regenerates these and blocks the commit if a committed copy is stale):
 #   AGENTS.md                           — INLINE full contract (canonical; plain-text readers)
-#   CLAUDE.md, GEMINI.md                — thin `@`-import stubs (Claude/Gemini resolve imports)
+#   CLAUDE.md, GEMINI.md                — thin stubs: one `@AGENTS.md` import (Claude/Gemini resolve it)
 #
 # GENERATED (local-only, gitignored mirrors/adapters; never hand-edit or commit):
 #   .ai/generated/rules.mdc             — cursor-friendly INLINE contract twin
@@ -76,8 +76,12 @@ EOF
 )
 
 # emit_md MODE CURSOR OUTFILE
-#   MODE   = inline | imports   (imports falls back to inline under --all-inline)
+#   MODE   = inline | agentref   (agentref falls back to inline under --all-inline)
 #   CURSOR = 1 to prepend the cursor .mdc header, else 0
+# inline   → banner + the full contract (context + pipeline) + the memory section.
+# agentref → banner + a single `@AGENTS.md` import. AGENTS.md is the committed canonical inline
+#            and already ends with the `@.ai/memory.md` reference, so the whole contract + memory
+#            ride along through that one import — no duplication in CLAUDE.md / GEMINI.md.
 emit_md() {
 	mode=$1
 	cursor=$2
@@ -88,19 +92,19 @@ emit_md() {
 	{
 		[ "$cursor" = "1" ] && printf '%s\n\n' "$cursor_header"
 		printf '%s\n\n' "$banner"
-		if [ "$mode" = "imports" ] && [ "$ALL_INLINE" != "1" ]; then
-			printf '%s\n\n%s\n\n' "@.ai/context.md" "@.ai/pipeline.md"
+		if [ "$mode" = "agentref" ] && [ "$ALL_INLINE" != "1" ]; then
+			printf '%s\n' "@AGENTS.md"
 		else
 			printf '%s\n\n%s\n\n' "$context" "$pipeline"
+			printf '%s\n' "$memory_section"
 		fi
-		printf '%s\n' "$memory_section"
 	} >"$out"
 }
 
-emit_md inline  0 "$ROOT/AGENTS.md"
-emit_md inline  1 "$AI/generated/rules.mdc"
-emit_md imports 0 "$ROOT/CLAUDE.md"
-emit_md imports 0 "$ROOT/GEMINI.md"
+emit_md inline   0 "$ROOT/AGENTS.md"
+emit_md inline   1 "$AI/generated/rules.mdc"
+emit_md agentref 0 "$ROOT/CLAUDE.md"
+emit_md agentref 0 "$ROOT/GEMINI.md"
 
 # .cursor/rules/00-context.mdc → symlink to the generated cursor artifact.
 mkdir -p "$ROOT/.cursor/rules"
